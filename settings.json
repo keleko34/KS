@@ -53,12 +53,12 @@
         "http":
         {
             "port":8080,
-            "base":"/app"
+            "base":"./app"
         },
         "https":
         {
             "port":443,
-            "base":"/app",
+            "base":"./app",
             "cert":"<file>"
         }
     }
