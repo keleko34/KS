@@ -1,5 +1,5 @@
-var fork_module = require('./Forks/Fork')
-  , thread_module = require('./Threads/Thread')
+var fork_module = require('./../Forks/Fork')
+  , thread_module = require('./../Threads/Thread')
   , cluster_module = require('cluster')
 
 module.exports = (function(CreateFork,CreateThread,cluster){

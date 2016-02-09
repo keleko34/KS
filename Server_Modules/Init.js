@@ -1,4 +1,4 @@
-var master_module = require('./Master')
+var master_module = require('./Master/Master')
   , fork_module = require('./Forks/Fork')
   , os_module = require('os')
   , cluster_module = require('cluster')

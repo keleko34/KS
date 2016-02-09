@@ -11,7 +11,7 @@
     ],
     "scripts":
     {
-        "start": "node init.js"
+        "start": "node start.js"
     },
     "homepage": "https://github.com/keleko34/KS",
     "bugs": {

@@ -18,6 +18,11 @@ module.exports = (function(){
       return Thread;
     }
     
+    Thread.shutdown = function()
+    {
+      
+    }
+    
     return Thread;
   }
   return CreateThread;
