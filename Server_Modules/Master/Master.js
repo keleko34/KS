@@ -23,7 +23,8 @@ module.exports = (function(CreateFork,CreateThread,cluster){
         {
           Master.forks(x,CreateFork()
             .id(x)
-            .cluster(cluster.fork({id:x})));
+            .cluster(cluster.fork({id:x}))
+            .status('online'))
         }
       }
       if(Master.forkCrash > -1)
@@ -31,7 +32,8 @@ module.exports = (function(CreateFork,CreateThread,cluster){
         Master.forks()[Master.forkCrash()].shutdown();
         Master.forks(Master.forkCrash(),CreateFork()
           .id(Master.forkCrash())
-          .cluster(cluster.fork({id:Master.forkCrash()})))
+          .cluster(cluster.fork({id:Master.forkCrash()}))
+          .status('online'))
         .forkCrash(-1);
       }
     }

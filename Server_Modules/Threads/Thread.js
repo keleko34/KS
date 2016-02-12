@@ -2,8 +2,11 @@ module.exports = (function(){
   function CreateThread()
   {
     var _id = 0
+      , _modules = {}
+      , _state = 'offline'
+      , _stateEnum = ['offline','online','exception']
     
-    function Thread()
+    function Thread(moduleList)
     {
       
     }
