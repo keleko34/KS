@@ -1,8 +1,9 @@
 var fork_module = require('./../Forks/Fork')
   , thread_module = require('./../Threads/Thread')
+  , comm_module = require('./../Comm/Comm')
   , cluster_module = require('cluster')
 
-module.exports = (function(CreateFork,CreateThread,cluster){
+module.exports = (function(CreateFork,CreateThread,CreateComm,cluster){
   function CreateMaster()
   {
     var _forkCount = 0
@@ -12,6 +13,7 @@ module.exports = (function(CreateFork,CreateThread,cluster){
       , _active = false
       , _forks = []
       , _threads = []
+      , _comm = CreateComm()
     
     /* if the amount of forks that are allocated in the forks array are less than what is expected or if a fork has crashed
      * then the associated forks will be respawned or the newly needed forks will be created */
@@ -36,6 +38,21 @@ module.exports = (function(CreateFork,CreateThread,cluster){
           .status('online'))
         .forkCrash(-1);
       }
+      Master.comm()
+      .type('master')
+      .channels('fork',{send:function(msg){Master.forks().forEach(function(d,i){d.send(msg);});}})
+      .commands()
+      .list('restart',function(data){
+        if(data.type === 'thread'){
+          Master.threads()[data.id].shutdown()
+          .thread(/* startup thread here with params */);
+        }
+        else if (data.type === 'fork'){
+          Master.forks()[data.id].shutdown()
+          .cluster(cluster.fork({id:data.id}));
+        }
+      })
+
     }
     
     /* Whether the master has active forks or threads running */
@@ -131,6 +148,14 @@ module.exports = (function(CreateFork,CreateThread,cluster){
       return Master;
     }
     
+    Master.comm = function(c){
+      if(c === undefined){
+        return _comm;
+      }
+      _comm = (c instanceof CreateComm() ? c : _comm);
+      return Master;
+    }
+
     /* Helper Methods */
     
     /* shuts down all fork processes and spawned thread processes */
@@ -142,4 +167,4 @@ module.exports = (function(CreateFork,CreateThread,cluster){
     return Master;
   }
   return CreateMaster;
-}(fork_module,thread_module,cluster_module))
+}(fork_module,thread_module,comm_module,cluster_module))
