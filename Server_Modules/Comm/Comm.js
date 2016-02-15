@@ -1,4 +1,4 @@
-var command_module = require('./_Commands/Command')
+var command_module = require('./_Commands/Commands')
 
 module.exports = (function(CreateCommands){
   function CreateComm()
@@ -8,16 +8,18 @@ module.exports = (function(CreateCommands){
       , _typeEnum = ['master','fork','thread']
       /* what kind of message command to execute */
       , _commands = CreateCommands()
-      , _channels = {'master':{},'fork':{},'thread':{}}
+      , _channels = {'master':function(){},'fork':function(){},'thread':function(){}}
     
     /* comm will filter the incoming messages when recieved */
     function Comm(message)
     {
+      if(message.route !== undefined){
+        var route = message.route;
+        message.route = undefined;
+        comm.channels(route)(message);
+      }
       if(message.command !== undefined){
         Comm.commands().call(Comm.commands(),message);
-      }
-      if(message.route !== undefined){
-        comm.channels(message.route).send(message);
       }
     }
     
@@ -52,7 +54,7 @@ module.exports = (function(CreateCommands){
       }
       return Comm;
     }
-
+    return Comm;
   }
   return CreateComm;
 }(command_module))

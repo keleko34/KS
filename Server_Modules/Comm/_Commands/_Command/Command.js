@@ -1,4 +1,4 @@
-Module.exports = (function(){
+module.exports = (function(){
   function CreateCommand(){
 
     /* the title of the command to run */
@@ -30,4 +30,4 @@ Module.exports = (function(){
     return Command;
   }
   return CreateCommand;
-}())
+}());

@@ -1,13 +1,21 @@
 {
-    "Modules":
-    {
-        "socket.io":false,
-        "socket.io-stream":false,
-        "mongoose":false,
-        "nodemailer":false
-    },
+    "Threads":[
+      {
+        "modules":{
+
+        },
+        "base":"./admin"
+      }
+    ],
     "Server":
     {
+        "modules":
+        {
+            "socket.io":false,
+            "socket.io-stream":false,
+            "mongoose":false,
+            "nodemailer":false
+        },
         "features":
         {
             "firewall":false,

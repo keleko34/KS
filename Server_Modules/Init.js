@@ -22,6 +22,8 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
       {
         Init.master()
         .forkCount(os.cpus().length)
+        .threadCount((config.Threads !== undefined ? config.Threads.length : 1))
+        .config(config)
         .call(Init.master(),config)
       }
       else
@@ -29,6 +31,7 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
         Init.fork()
         .id(process.env.id)
         .master(process)
+        .config(process.env.server)
         .call(Init.fork(),config)
       }
     }

@@ -1,13 +1,16 @@
-module.exports = (function(){
+var comm_module = require('./../Comm/Comm')
+
+module.exports = (function(CreateComm){
   function CreateFork()
   {
-    var _id = ''
+    var _id = 0
       , _status = 'offline'
       , _statusEnum = ['offline','online','exception']
       , _cluster = {}
       , _master = {}
+      , _config;
     
-    function Fork(config)
+    function Fork()
     {
       console.log('started Fork: '+Fork.id());
     }
@@ -52,11 +55,22 @@ module.exports = (function(){
       return Fork;
     }
     
+    Fork.config = function(c)
+    {
+      if(c === undefined)
+      {
+        return _config;
+      }
+      _config = (c.constructor === Object ? c : _config);
+      return Fork;
+    }
+
     Fork.shutdown = function()
     {
-      
+      Fork.cluster().disconnect();
+      return Fork;
     }
     return Fork; 
   }
   return CreateFork;
-}())
+}(comm_module))

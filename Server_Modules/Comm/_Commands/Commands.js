@@ -1,13 +1,13 @@
 var command_module = require('./_Command/Command');
 
-Module.exports = (function(CreateCommand){
+module.exports = (function(CreateCommand){
   function CreateCommands(){
 
     var _list = {};
 
     function Commands(message){
-      if(message.command !== undefined){
-        Commands.list()[message.command]((message.data !== undefined ? message.data : null));
+      if(message.command !== undefined && Commands.list()[message.command]){
+        Commands.list()[message.command].exec()((message.data !== undefined ? message.data : null));
       }
     }
 
