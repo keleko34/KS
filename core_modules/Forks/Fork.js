@@ -1,6 +1,7 @@
 var comm_module = require('./../Comm/Comm')
+  , fork_commands_module = require('./_Commands/Command')
 
-module.exports = (function(CreateComm){
+module.exports = (function(CreateComm,CreateForkCommands){
   function CreateFork()
   {
     var _id = 0
@@ -74,4 +75,4 @@ module.exports = (function(CreateComm){
     return Fork;
   }
   return CreateFork;
-}(comm_module))
+}(comm_module,fork_commands_module))
