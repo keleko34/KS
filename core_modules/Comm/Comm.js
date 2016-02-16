@@ -38,7 +38,7 @@ module.exports = (function(CreateCommands){
       {
         return _commands;
       }
-      _commands = (c instanceof CreateCommands() ? c : _commands);
+      _commands = (typeof c === 'function' ? c : _commands);
       return Comm;
     }
 

@@ -43,7 +43,7 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
       {
         return _master;
       }
-      _master = (m instanceof CreateMaster() ? m : _master);
+      _master = (typeof m === 'function' ? m : _master);
       return Init;
     }
 
@@ -54,7 +54,7 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
       {
         return _fork;
       }
-      _fork = (f instanceof CreateFork() ? f : _fork);
+      _fork = (typeof f === 'function' ? f : _fork);
       return Init;
     }
 

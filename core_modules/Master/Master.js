@@ -30,8 +30,9 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
           /* we have a new fork to create, we assign an id and spawn a cluster fork, this works on the same thread as the master but on a different process */
           Master.forks(x,CreateFork()
             .id(x)
-            .cluster(cluster.fork({id:x,server:Master.config().server}).on('message',Master.comm()))
+            .cluster(cluster.fork({id:x,server:Master.config().server}))
             .status('online'));
+          Master.forks()[x].cluster().on('message',Master.comm());
         }
       }
 
@@ -41,9 +42,10 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         Master.forks()[Master.forkCrash()].shutdown();
         Master.forks(Master.forkCrash(),CreateFork()
           .id(Master.forkCrash())
-          .cluster(cluster.fork({id:Master.forkCrash(),server:Master.config().server}).on('message',Master.comm()))
-          .status('online'))
-        .forkCrash(-1);
+          .cluster(cluster.fork({id:Master.forkCrash(),server:Master.config().server}))
+          .status('online'));
+        Master.forks()[Master.forkCrash()].cluster().on('message',Master.comm());
+        Master.forkCrash(-1);
       }
 
       /* The threads creation section, whenever a thread crashes or a new thread needs spawned this constructor will run */
@@ -53,8 +55,9 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         {
           Master.threads(x,CreateThread()
               .id(x)
-              .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:x,controller:'thread',modules:JSON.stringify(Master.config().Threads[x].modules)}}).on('message',Master.comm()))
+              .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:x,controller:'thread',modules:JSON.stringify(Master.config().Threads[x].modules)}}))
               .status('online'));
+          Master.threads()[x].fork().on('message',Master.comm());
         }
       }
       if(Master.threadCrash() > -1)
@@ -62,9 +65,11 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         Master.threads()[Master.threadCrash()].shutdown();
         Master.threads(Master.threadCrash(),CreateThread()
             .id(Master.threadCrash())
-            .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:Master.threadCrash(),controller:'thread',modules:JSON.stringify(Master.config().Threads[Master.threadCrash()].modules)}}).on('message',Master.comm()))
-            .status('online'))
-          .threadCrash(-1);
+            .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:Master.threadCrash(),controller:'thread',modules:JSON.stringify(Master.config().Threads[Master.threadCrash()].modules)}}))
+            .status('online'));
+        Master.threads()[Master.threadCrash()].fork().on('message',Master.comm());
+        Master.threadCrash(-1);
+
       }
 
       /* master comm sets up the master communication endpoint, setting up the channels is for relaying route message from others, so as an example if a child process sends a message and wants to be routed to a fork the channels is what relays the message, the commands are the list of message commands that fire when a command param on the message is included. anything coming from child process though will have restricted access to commands in fork and master. */
@@ -100,7 +105,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         _forks = n;
         return Master;
       }
-      if((typeof n === 'number' && !isNaN(parseInt(n,10))) && f instanceof CreateFork())
+      if((typeof n === 'number' && !isNaN(parseInt(n,10))) && typeof f === 'function')
       {
         _forks[parseInt(n,10)] = f;
       }
@@ -141,7 +146,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         _threads = n;
         return Master;
       }
-      if((typeof n === 'number' && !isNaN(parseInt(n,10))) && t instanceof CreateThread())
+      if((typeof n === 'number' && !isNaN(parseInt(n,10))) && typeof t === 'function')
       {
         _threads[n] = t;
       }
@@ -176,7 +181,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       {
         return _comm;
       }
-      _comm = (c instanceof CreateComm() ? c : _comm);
+      _comm = (typeof c === 'function' ? c : _comm);
       return Master;
     }
 

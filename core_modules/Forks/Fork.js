@@ -43,7 +43,7 @@ module.exports = (function(CreateComm,CreateForkCommands){
       {
         return _cluster;
       }
-      _cluster = (c.constructor === Object ? c : _cluster);
+      _cluster = (typeof c === 'object' ? c : _cluster);
       return Fork;
     }
 

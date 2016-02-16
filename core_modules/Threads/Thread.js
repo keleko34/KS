@@ -15,10 +15,16 @@ var thread = (function(CreateComm){
     function Thread()
     {
       if(Thread.controller() === 'thread'){
-        console.log('started Thread: '+Thread.id());
-        process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}})
+        console.log('started Thread: '+Thread.id(),process.pid);
+        process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}});
+        process.send({command:'restart',data:{type:'thread',id:Thread.id()}})
         /* Setup Events for the process */
       }
+
+      process.on('disconnect',function(){
+        console.log('killing: '+Thread.id());
+        process.kill(process.pid)
+      });
     }
 
     Thread.id = function(i)
@@ -47,7 +53,7 @@ var thread = (function(CreateComm){
       {
         return _fork;
       }
-      _fork = (f.constructor === Object ? f : _fork);
+      _fork = (typeof f === 'object' ? f : _fork);
       return Thread;
     }
 

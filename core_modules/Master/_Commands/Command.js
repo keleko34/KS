@@ -32,11 +32,13 @@ module.exports = (function(cluster,child_process){
     {
       if(data.type === 'thread' && data.id !== undefined){
         MasterCommands.master().threads()[data.id].shutdown()
-        .fork(child_process.fork('./../Threads/Thread.js'));
+        .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:data.id,controller:'thread',modules:JSON.stringify(MasterCommands.master().config().Threads[data.id].modules)}}))
+        .fork().on('message',MasterCommands.master().comm());
       }
       else if (data.type === 'fork' && data.id !== undefined){
         MasterCommands.master().forks()[data.id].shutdown()
-        .cluster(cluster.fork({id:data.id}));
+        .cluster(cluster.fork({id:data.id,server:MasterCommands.master().config().server}))
+        .cluster().on('message',MasterCommands.master().comm());
       }
     }
 
