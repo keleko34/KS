@@ -9,7 +9,7 @@ module.exports = (function(CreateCommands){
       /* what kind of message command to execute */
       , _commands = CreateCommands()
       , _channels = {'master':function(){},'fork':function(){},'thread':function(){}}
-    
+
     /* comm will filter the incoming messages when recieved */
     function Comm(message)
     {
@@ -22,7 +22,7 @@ module.exports = (function(CreateCommands){
         Comm.commands().call(Comm.commands(),message);
       }
     }
-    
+
     Comm.type = function(t){
       if(t === undefined)
       {
@@ -32,7 +32,7 @@ module.exports = (function(CreateCommands){
       _channels = [];
       return Comm;
     }
-    
+
     Comm.commands = function(c){
       if(c === undefined)
       {
@@ -41,7 +41,7 @@ module.exports = (function(CreateCommands){
       _commands = (c instanceof CreateCommands() ? c : _commands);
       return Comm;
     }
-    
+
     Comm.channels = function(n,f){
       if(n === undefined){
         return _channels;

@@ -11,7 +11,7 @@ var thread = (function(CreateComm){
       , _statusEnum = ['offline','online','exception']
       , _controller = 'master'
       , _controllerEnum = ['master','thread']
-    
+
     function Thread()
     {
       if(Thread.controller() === 'thread'){
@@ -20,7 +20,7 @@ var thread = (function(CreateComm){
         /* Setup Events for the process */
       }
     }
-    
+
     Thread.id = function(i)
     {
       if(i === undefined)
@@ -30,7 +30,7 @@ var thread = (function(CreateComm){
       _id = ((typeof i === 'number' || !isNaN(parseInt(i,10))) ? parseInt(i,10) : _id);
       return Thread;
     }
-    
+
     Thread.status = function(s)
     {
       if(s === undefined)
@@ -96,7 +96,7 @@ var thread = (function(CreateComm){
       Thread.fork().disconnect();
       return Thread;
     }
-    
+
     return Thread;
   }
   return CreateThread;

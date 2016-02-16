@@ -1,10 +1,11 @@
 var fork_module = require('./../Forks/Fork')
   , thread_module = require('./../Threads/Thread')
   , comm_module = require('./../Comm/Comm')
+  , master_commands_module = require('./_Commands/Command')
   , cluster_module = require('cluster')
   , childprocess_module = require('child_process')
 
-module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_process){
+module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterCommands,cluster,child_process){
   function CreateMaster()
   {
     var _forkCount = 0
@@ -16,7 +17,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       , _threads = []
       , _comm = CreateComm()
       , _config = {}
-    
+
     /* if the amount of forks that are allocated in the forks array are less than what is expected or if a fork has crashed
      * then the associated forks will be respawned or the newly needed forks will be created */
     function Master()
@@ -26,19 +27,15 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       {
         for(var x=Master.forks().length;x<Master.forkCount();x+=1)
         {
+          /* we have a new fork to create, we assign an id and spawn a cluster fork, this works on the same thread as the master but on a different process */
           Master.forks(x,CreateFork()
             .id(x)
             .cluster(cluster.fork({id:x,server:Master.config().server}).on('message',Master.comm()))
-            .status('online'))
-          .comm()
-          .channels('fork',function(message){
-            for(var x=0;x<Master.forks().length;x+=1)
-            {
-              Master.forks()[x].send(message);
-            }
-          });
+            .status('online'));
         }
       }
+
+      /* if a fork happens to crash we need to send a disconnect notice to the fork so it will shut itself down so we can restart it and make a brand new fork process */
       if(Master.forkCrash() > -1)
       {
         Master.forks()[Master.forkCrash()].shutdown();
@@ -46,14 +43,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
           .id(Master.forkCrash())
           .cluster(cluster.fork({id:Master.forkCrash(),server:Master.config().server}).on('message',Master.comm()))
           .status('online'))
-        .forkCrash(-1)
-        .comm()
-        .channels('fork',function(message){
-          for(var x=0;x<Master.forks().length;x+=1)
-          {
-            Master.forks()[x].send(message);
-          }
-        });
+        .forkCrash(-1);
       }
 
       /* The threads creation section, whenever a thread crashes or a new thread needs spawned this constructor will run */
@@ -63,15 +53,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
         {
           Master.threads(x,CreateThread()
               .id(x)
-              .fork(child_process.fork('./Server_Modules/Threads/Thread.js',[],{env:{id:x,controller:'thread',modules:JSON.stringify(Master.config().Threads[x].modules)}}).on('message',Master.comm()))
-              .status('online'))
-            .comm()
-            .channels('thread',function(message){
-              for(var x=0;x<Master.threads().length;x+=1)
-              {
-                Master.threads()[x].send(message);
-              }
-            });
+              .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:x,controller:'thread',modules:JSON.stringify(Master.config().Threads[x].modules)}}).on('message',Master.comm()))
+              .status('online'));
         }
       }
       if(Master.threadCrash() > -1)
@@ -79,63 +62,21 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
         Master.threads()[Master.threadCrash()].shutdown();
         Master.threads(Master.threadCrash(),CreateThread()
             .id(Master.threadCrash())
-            .fork(child_process.fork('./Server_Modules/Threads/Thread.js',[],{env:{id:Master.threadCrash(),controller:'thread',modules:JSON.stringify(Master.config().Threads[Master.threadCrash()].modules)}}).on('message',Master.comm()))
+            .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:Master.threadCrash(),controller:'thread',modules:JSON.stringify(Master.config().Threads[Master.threadCrash()].modules)}}).on('message',Master.comm()))
             .status('online'))
-          .threadCrash(-1)
-          .comm()
-          .channels('thread',function(message){
-            for(var x=0;x<Master.threads().length;x+=1)
-            {
-              Master.threads()[x].send(message);
-            }
-          });
+          .threadCrash(-1);
       }
 
+      /* master comm sets up the master communication endpoint, setting up the channels is for relaying route message from others, so as an example if a child process sends a message and wants to be routed to a fork the channels is what relays the message, the commands are the list of message commands that fire when a command param on the message is included. anything coming from child process though will have restricted access to commands in fork and master. */
       Master.comm()
       .type('master')
-      .channels('fork',{send:function(msg){Master.forks().forEach(function(d,i){d.send(msg);});}})
+      .channels('fork',function(msg){Master.forks().forEach(function(d,i){d.send(msg);});})
+      .channels('thread',function(msg){Master.forks().forEach(function(d,i){d.send(msg);});})
       .commands()
-      .list('restart',function(data){
-        if(data.type === 'thread' && data.id !== undefined){
-          Master.threads()[data.id].shutdown()
-          .fork(child_process.fork('./../Threads/Thread.js'));
-        }
-        else if (data.type === 'fork' && data.id !== undefined){
-          Master.forks()[data.id].shutdown()
-          .cluster(cluster.fork({id:data.id}));
-        }
-      })
-      .list('spawn',function(data){
-        if(data.type === 'thread'){
-          Master.threadCount(Master.threadCount()+1)();
-        }
-        else if(data.type === 'fork'){
-          Master.forkCount(Master.forkCount()+1)();
-        }
-      })
-      .list('crash',function(data){
-        if(data.type === 'thread' && data.id !== undefined){
-          Master.threadCrash(data.id)();
-        }
-        else if(data.type === 'fork' && data.id !== undefined){
-          Master.forkCrash(data.id)();
-        }
-      })
-      .list('update',function(data){
-        if(data.config !== undefined)
-        {
-          //update config here
-        }
-      })
-      .list('echo',function(data){
-        if(data.message !== undefined)
-        {
-          console.log(data.message);
-        }
-      })
+      .list(CreateMasterCommands().master(Master)());
 
     }
-    
+
     /* Whether the master has active forks or threads running */
     Master.active = function(a)
     {
@@ -146,7 +87,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       _active = !!a;
       return Master;
     }
-    
+
     /* the forks that were spawned */
     Master.forks = function(n,f)
     {
@@ -165,7 +106,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       }
       return Master;
     }
-    
+
     /* The number of forks that will be spawned off of the master thread */
     Master.forkCount = function(c)
     {
@@ -176,7 +117,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       _forkCount = ((typeof c === 'number' || !isNaN(parseInt(c,10))) ? parseInt(c,10) : _forkCount);
       return Master;
     }
-    
+
     /* if a fork has had an exception and crashed, this is the id of the fork that crashed */
     Master.forkCrash = function(c)
     {
@@ -187,7 +128,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       _forkCrash = (((typeof c === 'number' || !isNaN(parseInt(c,10))) && parseInt(c,10) <= _forkCount) ? parseInt(c,10) : _forkCrash);
       return Master;
     }
-    
+
     /* the threads that were spawned */
     Master.threads = function(n,t)
     {
@@ -206,7 +147,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       }
       return Master;
     }
-    
+
     /* The number of threads to be spawned */
     Master.threadCount = function(c)
     {
@@ -217,7 +158,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       _threadCount = ((typeof c === 'number' || !isNaN(parseInt(c,10))) ? parseInt(c,10) : _threadCount);
       return Master;
     }
-    
+
     /* if a thread has had an exception and crashed, this is the id of the thread that crashed */
     Master.threadCrash = function(c)
     {
@@ -228,7 +169,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
       _threadCrash = (((typeof c === 'number' || !isNaN(parseInt(c,10))) && parseInt(c,10) <= _threadCount) ? parseInt(c,10) : _threadCrash);
       return Master;
     }
-    
+
     Master.comm = function(c)
     {
       if(c === undefined)
@@ -250,15 +191,15 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,cluster,child_proc
     }
 
     /* Helper Methods */
-    
+
     /* shuts down all fork processes and spawned thread processes */
     Master.shutdown = function()
     {
       process.kill();
       Master();
     }
-    
+
     return Master;
   }
   return CreateMaster;
-}(fork_module,thread_module,comm_module,cluster_module,childprocess_module))
+}(fork_module,thread_module,comm_module,master_commands_module,cluster_module,childprocess_module))

@@ -6,7 +6,7 @@ module.exports = (function(CreateCommand){
     var _list = {};
 
     function Commands(message){
-      if(message.command !== undefined && Commands.list()[message.command]){
+      if(message.command !== undefined && Commands.list()[message.command] !== undefined){
         Commands.list()[message.command].exec()((message.data !== undefined ? message.data : null));
       }
     }
@@ -16,7 +16,18 @@ module.exports = (function(CreateCommand){
         return _list;
       }
       if(c === undefined && n.constructor === Object){
-        _list = n;
+        var cmds = Object.keys(n).forEach(function(d,i){
+          if(n[d] instanceof CreateCommand())
+          {
+            _list[d] = n[d];
+          }
+          else if(typeof n[d] === 'function')
+          {
+            _list[d] = CreateCommand().title(d).exec(n[d]);
+          }
+
+        });
+
         return Commands;
       }
       n = ((typeof n === 'string' || n.toString() !== '[object Object]') ? n.toString() : 'default');

@@ -9,12 +9,13 @@ module.exports = (function(CreateComm){
       , _cluster = {}
       , _master = {}
       , _config;
-    
+
     function Fork()
     {
       console.log('started Fork: '+Fork.id());
+      process.send({command:'echo',data:{message:'echo from fork: '+Fork.id()}})
     }
-    
+
     Fork.id = function(i)
     {
       if(i === undefined)
@@ -24,7 +25,7 @@ module.exports = (function(CreateComm){
       _id = ((typeof i === 'number' || !isNaN(parseInt(i,10))) ? parseInt(i,10) : _id);
       return Fork;
     }
-    
+
     Fork.status = function(s)
     {
       if(s === undefined)
@@ -34,7 +35,7 @@ module.exports = (function(CreateComm){
       _status = (_statusEnum.indexOf(s) > -1 ? s : _status);
       return Fork;
     }
-    
+
     Fork.cluster = function(c)
     {
       if(c === undefined)
@@ -44,7 +45,7 @@ module.exports = (function(CreateComm){
       _cluster = (c.constructor === Object ? c : _cluster);
       return Fork;
     }
-    
+
     Fork.master = function(m)
     {
       if(m === undefined)
@@ -54,7 +55,7 @@ module.exports = (function(CreateComm){
       _master = (m === process ? m : _master);
       return Fork;
     }
-    
+
     Fork.config = function(c)
     {
       if(c === undefined)
@@ -70,7 +71,7 @@ module.exports = (function(CreateComm){
       Fork.cluster().disconnect();
       return Fork;
     }
-    return Fork; 
+    return Fork;
   }
   return CreateFork;
 }(comm_module))
