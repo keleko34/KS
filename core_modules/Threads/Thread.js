@@ -1,6 +1,7 @@
 var comm_module = require('./../Comm/Comm')
+  , thread_command_module = require('./_Commands/Command')
 
-var thread = (function(CreateComm){
+var thread = (function(CreateComm,CreateThreadCommands){
   function CreateThread()
   {
     var _id = 0
@@ -11,20 +12,31 @@ var thread = (function(CreateComm){
       , _statusEnum = ['offline','online','exception']
       , _controller = 'master'
       , _controllerEnum = ['master','thread']
+      , _comm = CreateComm()
 
     function Thread()
     {
       if(Thread.controller() === 'thread'){
-        console.log('started Thread: '+Thread.id(),process.pid);
-        process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}});
-        process.send({command:'restart',data:{type:'thread',id:Thread.id()}})
         /* Setup Events for the process */
-      }
+        console.log('Started: Thread: '+Thread.id(),process.pid);
+        process.on('uncaughtException',Thread.exception());
+        process.on('message',Thread.comm());
+        process.on('error',function(msg){console.log('ERR,',msg,' From Thread '+Thread.id());})
+        process.on('disconnect',function(){
+          console.log('killing: Thread: '+Thread.id(),process.pid);
+          process.kill(process.pid);
+        });
 
-      process.on('disconnect',function(){
-        console.log('killing: '+Thread.id());
-        process.kill(process.pid)
-      });
+        Thread.comm()
+        .type('thread')
+        .channels('master',function(message){process.send(message)})
+        .commands()
+        .list(CreateThreadCommands().thread(Thread)());
+
+        /* Testing Messages */
+        process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}});
+        //process.send({command:'restart',data:{type:'thread',id:Thread.id()}});
+      }
     }
 
     Thread.id = function(i)
@@ -97,16 +109,36 @@ var thread = (function(CreateComm){
       return Thread;
     }
 
+    Thread.comm = function(c)
+    {
+      if(c === undefined)
+      {
+        return _comm;
+      }
+      _comm = (typeof c === 'function' ? c : _comm);
+      return Thread;
+    }
+
+    /* Methods */
     Thread.shutdown = function()
     {
       Thread.fork().disconnect();
       return Thread;
     }
 
+    Thread.exception = function()
+    {
+      return function(){
+        console.log('ERRRRR');
+        //send error as well, later for modules
+        process.send({command:'crash',data:{type:'thread',id:Thread.id()}});
+      }
+    }
+
     return Thread;
   }
   return CreateThread;
-}(comm_module))
+}(comm_module,thread_command_module))
 
 if(process.env.controller !== undefined)
 {

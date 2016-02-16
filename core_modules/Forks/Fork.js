@@ -14,7 +14,7 @@ module.exports = (function(CreateComm,CreateForkCommands){
     function Fork()
     {
       console.log('started Fork: '+Fork.id());
-      process.send({command:'echo',data:{message:'echo from fork: '+Fork.id()}})
+      process.send({command:'echo',data:{message:'echo from fork: '+Fork.id()}});
     }
 
     Fork.id = function(i)

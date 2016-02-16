@@ -1,4 +1,4 @@
-module.exports = (function(cluster,child_process){
+module.exports = (function(){
   function CreateForkCommands()
   {
     var _fork = function(){};
