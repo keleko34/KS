@@ -1,0 +1,9 @@
+{
+  "env":"dev",
+  "envEnum":["dev","qa","prod"],
+  "logging":
+  {
+      "requests":"all",
+      "debug":true
+  }
+}

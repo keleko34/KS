@@ -1,0 +1,37 @@
+{
+  "firewall":false,
+  "rest":
+  {
+      "http":false,
+      "websockets":false
+  },
+  "aliases":false,
+  "logging":false,
+  "directories":false,
+  "caching":false,
+  "email":"false",
+  "websockets":false,
+  "binarystreams":false,
+  "mongodb":false,
+  "redis":false,
+  "mysql":false,
+  "filefilter":false,
+  "php":false,
+  "http":
+  {
+      "port":8080,
+      "base":"./app"
+  },
+  "https":
+  {
+      "port":443,
+      "base":"./app",
+      "cert":"<file>"
+  },
+  "http2":
+  {
+      "port":8080,
+      "base":"./app",
+      "cert":"<file>"
+  }
+}

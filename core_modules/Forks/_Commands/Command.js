@@ -24,9 +24,10 @@ module.exports = (function(){
     /* Method Commands */
    ForkCommands.fork_start = function(data)
    {
+     /* attach process events */
       if(ForkCommands.fork().status() !== 'online')
       {
-        process.send({command:'echo',data:{message:'Started: Fork: '+data.id+' PID: '+process.pid}});
+        process.send({command:'echo',data:{message:'Started: Fork:   '+data.id+' PID: '+process.pid}});
         process.once('uncaughtException',ForkCommands.fork().exception());
         process.on('message',ForkCommands.fork().comm());
         process.on('error',function(msg){console.log('ERR,',msg,' From Fork '+ForkCommands.fork().id());})
@@ -35,6 +36,10 @@ module.exports = (function(){
         });
         ForkCommands.fork().status('online');
       }
+
+     /* filter config data */
+
+
    }
 
   ForkCommands.echo = function(data)

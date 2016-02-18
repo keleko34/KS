@@ -1,0 +1,12 @@
+{
+  "typeEnum":["mongodb","redis","mysql"],
+  "databases":[
+    {
+      "type":"mongodb",
+      "ip":"<IP Address>",
+      "dbname":"<DB Name>",
+      "user":"<Username>",
+      "pass":"<Password>"
+    }
+  ]
+}

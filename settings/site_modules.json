@@ -1,0 +1,11 @@
+{
+  "threads":
+  [
+    {
+      "modules":{
+
+      },
+      "base":"./admin"
+    }
+  ]
+}
