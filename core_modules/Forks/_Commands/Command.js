@@ -6,7 +6,8 @@ module.exports = (function(){
     function ForkCommands()
     {
       return {
-
+        fork_start:ForkCommands.fork_start,
+        echo:ForkCommands.echo
       }
     }
 
@@ -21,7 +22,19 @@ module.exports = (function(){
     }
 
     /* Method Commands */
+   ForkCommands.fork_start = function(data)
+   {
+     console.log('sending from fork');
+     process.send({command:'echo',data:{message:'echo from fork: '+data.id}});
+   }
 
+  ForkCommands.echo = function(data)
+  {
+    if(data.message !== undefined)
+    {
+      console.log('From thread '+ForkCommands.fork().id()+': '+data.message);
+    }
+  }
 
     return ForkCommands;
   }

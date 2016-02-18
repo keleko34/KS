@@ -27,8 +27,11 @@ module.exports = (function(CreateCommand){
           }
 
         });
-
         return Commands;
+      }
+      else if(c === undefined && typeof n === 'string')
+      {
+        return _list[n].exec();
       }
       n = ((typeof n === 'string' || n.toString() !== '[object Object]') ? n.toString() : 'default');
       _list[n] = (c instanceof CreateCommand() ? c : CreateCommand().title(n).exec((typeof c === 'function' ? c : function(){})));

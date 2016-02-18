@@ -27,14 +27,8 @@ module.exports = (function(CreateComm,CreateForkCommands){
       .type('fork')
       .channels('master',function(message){process.send(message)})
       .commands()
-      .list(CreateForkCommands().fork(Fork)());
-
-      process.send({command:'echo',data:{message:'echo from fork: '+Fork.id()}});
-      if(Fork.id() === 3){
-        console.log('number of listeners: ',process.listenerCount('uncaughtException'));
-         unkownFunc();
-      }
-
+      .list(CreateForkCommands().fork(Fork)())
+      .list('fork_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
     }
 
     Fork.id = function(i)

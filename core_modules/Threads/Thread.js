@@ -31,12 +31,8 @@ var thread = (function(CreateComm,CreateThreadCommands){
         .type('thread')
         .channels('master',function(message){process.send(message)})
         .commands()
-        .list(CreateThreadCommands().thread(Thread)());
-
-        /* Testing Messages */
-        process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}});
-        //process.send({command:'restart',data:{type:'thread',id:Thread.id()}});
-        unkownFunction();
+        .list(CreateThreadCommands().thread(Thread)())
+        .list('thread_start')({id:Thread.id(),status:Thread.status(),modules:Thread.modules()});
       }
     }
 

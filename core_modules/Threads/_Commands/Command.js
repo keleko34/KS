@@ -6,6 +6,7 @@ module.exports = (function(){
     function ThreadCommands()
     {
       return {
+        thread_start:ThreadCommands.thread_start,
         echo:ThreadCommands.echo
       }
     }
@@ -21,6 +22,11 @@ module.exports = (function(){
     }
 
     /* Method Commands */
+
+    ThreadCommands.thread_start = function(data)
+    {
+      process.send({command:'echo',data:{message:'echo from thread: '+data.id}});
+    }
 
     ThreadCommands.echo = function(data)
     {
