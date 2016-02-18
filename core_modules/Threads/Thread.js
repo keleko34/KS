@@ -19,10 +19,10 @@ var thread = (function(CreateComm,CreateThreadCommands){
       if(Thread.controller() === 'thread'){
         /* Setup Events for the process */
         console.log('Started: Thread: '+Thread.id(),process.pid);
-        process.on('uncaughtException',Thread.exception());
+        process.once('uncaughtException',Thread.exception());
         process.on('message',Thread.comm());
         process.on('error',function(msg){console.log('ERR,',msg,' From Thread '+Thread.id());})
-        process.on('disconnect',function(){
+        process.once('disconnect',function(){
           console.log('killing: Thread: '+Thread.id(),process.pid);
           process.kill(process.pid);
         });
@@ -36,6 +36,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
         /* Testing Messages */
         process.send({command:'echo',data:{message:'echo from thread: '+Thread.id()}});
         //process.send({command:'restart',data:{type:'thread',id:Thread.id()}});
+        unkownFunction();
       }
     }
 
@@ -128,8 +129,8 @@ var thread = (function(CreateComm,CreateThreadCommands){
 
     Thread.exception = function()
     {
-      return function(){
-        console.log('ERRRRR');
+      return function(err){
+        console.log('ERR: ',err);
         //send error as well, later for modules
         process.send({command:'crash',data:{type:'thread',id:Thread.id()}});
       }

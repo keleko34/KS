@@ -79,8 +79,6 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       .channels('thread',function(msg){Master.forks().forEach(function(d,i){d.send(msg);});})
       .commands()
       .list(CreateMasterCommands().master(Master)());
-
-      process.on('uncaughtException',function(msg){console.log(msg);return false;});
     }
 
     /* Whether the master has active forks or threads running */

@@ -9,12 +9,32 @@ module.exports = (function(CreateComm,CreateForkCommands){
       , _statusEnum = ['offline','online','exception']
       , _cluster = {}
       , _master = {}
-      , _config;
+      , _config
+      , _comm = CreateComm();
 
     function Fork()
     {
       console.log('started Fork: '+Fork.id());
+      process.once('uncaughtException',Fork.exception());
+      process.on('message',Fork.comm());
+      process.on('error',function(msg){console.log('ERR,',msg,' From Fork '+Fork.id());})
+      process.once('disconnect',function(){
+        console.log('killing: Fork: '+Fork.id(),process.pid);
+        process.kill(process.pid);
+      });
+
+      Fork.comm()
+      .type('fork')
+      .channels('master',function(message){process.send(message)})
+      .commands()
+      .list(CreateForkCommands().fork(Fork)());
+
       process.send({command:'echo',data:{message:'echo from fork: '+Fork.id()}});
+      if(Fork.id() === 3){
+        console.log('number of listeners: ',process.listenerCount('uncaughtException'));
+         unkownFunc();
+      }
+
     }
 
     Fork.id = function(i)
@@ -65,6 +85,25 @@ module.exports = (function(CreateComm,CreateForkCommands){
       }
       _config = (c.constructor === Object ? c : _config);
       return Fork;
+    }
+
+    Fork.comm = function(c)
+    {
+      if(c === undefined)
+      {
+        return _comm;
+      }
+      _comm = (typeof c === 'function' ? c : _comm);
+      return Fork;
+    }
+
+    Fork.exception = function()
+    {
+      return function(err){
+        console.log('ERR: ',err);
+        //send error as well, later for modules
+        process.send({command:'crash',data:{type:'fork',id:Fork.id()}});
+      }
     }
 
     Fork.shutdown = function()
