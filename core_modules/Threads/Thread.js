@@ -17,16 +17,8 @@ var thread = (function(CreateComm,CreateThreadCommands){
     function Thread()
     {
       if(Thread.controller() === 'thread'){
-        /* Setup Events for the process */
-        console.log('Started: Thread: '+Thread.id(),process.pid);
-        process.once('uncaughtException',Thread.exception());
-        process.on('message',Thread.comm());
-        process.on('error',function(msg){console.log('ERR,',msg,' From Thread '+Thread.id());})
-        process.once('disconnect',function(){
-          console.log('killing: Thread: '+Thread.id(),process.pid);
-          process.kill(process.pid);
-        });
 
+        /* Setup Events for the comm */
         Thread.comm()
         .type('thread')
         .channels('master',function(message){process.send(message)})

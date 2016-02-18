@@ -79,7 +79,7 @@ module.exports = (function(cluster,child_process){
     {
       if(data.message !== undefined)
       {
-        console.log('From Master: '+data.message);
+        console.log('Echo From Master: '+data.message);
       }
     }
     return MasterCommands;

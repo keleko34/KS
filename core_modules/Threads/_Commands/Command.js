@@ -25,7 +25,17 @@ module.exports = (function(){
 
     ThreadCommands.thread_start = function(data)
     {
-      process.send({command:'echo',data:{message:'echo from thread: '+data.id}});
+      if(ThreadCommands.thread().status() !== 'online')
+      {
+        process.send({command:'echo',data:{message:'Started: Thread: '+data.id+' PID: '+process.pid}});
+        process.once('uncaughtException',ThreadCommands.thread().exception());
+        process.on('message',ThreadCommands.thread().comm());
+        process.on('error',function(msg){console.log('ERR,',msg,' From Thread '+ThreadCommands.thread().id());})
+        process.once('disconnect',function(){
+          process.kill(process.pid);
+        });
+        ThreadCommands.thread().status('online');
+      }
     }
 
     ThreadCommands.echo = function(data)

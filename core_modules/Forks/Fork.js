@@ -14,15 +14,6 @@ module.exports = (function(CreateComm,CreateForkCommands){
 
     function Fork()
     {
-      console.log('started Fork: '+Fork.id());
-      process.once('uncaughtException',Fork.exception());
-      process.on('message',Fork.comm());
-      process.on('error',function(msg){console.log('ERR,',msg,' From Fork '+Fork.id());})
-      process.once('disconnect',function(){
-        console.log('killing: Fork: '+Fork.id(),process.pid);
-        process.kill(process.pid);
-      });
-
       Fork.comm()
       .type('fork')
       .channels('master',function(message){process.send(message)})
