@@ -24,7 +24,6 @@ module.exports = (function(){
     /* Method Commands */
    ForkCommands.fork_start = function(data)
    {
-     console.log('sending from fork');
      process.send({command:'echo',data:{message:'echo from fork: '+data.id}});
    }
 
