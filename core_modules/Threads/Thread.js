@@ -13,6 +13,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
       , _controller = 'master'
       , _controllerEnum = ['master','thread']
       , _comm = CreateComm()
+      , _base = ''
 
     function Thread()
     {
@@ -24,7 +25,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
         .channels('master',function(message){process.send(message)})
         .commands()
         .list(CreateThreadCommands().thread(Thread)())
-        .list('thread_start')({id:Thread.id(),status:Thread.status(),modules:Thread.modules()});
+        .list('thread_start')({id:Thread.id(),status:Thread.status(),modules:Thread.modules(),base:Thread.base()});
       }
     }
 
@@ -98,6 +99,16 @@ var thread = (function(CreateComm,CreateThreadCommands){
       return Thread;
     }
 
+    Thread.base = function(b)
+    {
+      if(b === undefined)
+      {
+        return _base;
+      }
+      _base = ((typeof b === 'string' && b.indexOf('./') > -1) ? b : _base);
+      return Thread;
+    }
+
     Thread.comm = function(c)
     {
       if(c === undefined)
@@ -134,7 +145,8 @@ if(process.env.controller !== undefined)
   thread()
   .id(process.env.id)
   .controller(process.env.controller)
-  .modules(JSON.parse(process.env.modules))()
+  .modules(JSON.parse(process.env.site).site_modules.modules)
+  .base(JSON.parse(process.env.site).site_modules.base)()
 }
 else
 {

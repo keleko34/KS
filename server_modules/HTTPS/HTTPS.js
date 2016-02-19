@@ -1,4 +1,6 @@
-module.exports = (function(){
+var https_module = require('https')
+
+module.exports = (function(https){
   function CreateHTTPS()
   {
     var _port = 443
@@ -32,4 +34,4 @@ module.exports = (function(){
     return HTTPS;
   }
   return CreateHTTPS;
-}());
+}(https_module));

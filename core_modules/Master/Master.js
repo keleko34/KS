@@ -30,7 +30,10 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
           /* we have a new fork to create, we assign an id and spawn a cluster fork, this works on the same thread as the master but on a different process */
           Master.forks(x,CreateFork()
             .id(x)
-            .cluster(cluster.fork({id:x,server:Master.config().server}))
+            .cluster(cluster.fork({
+              id:x,
+              server:JSON.stringify(Master.config().server)
+            }))
             .status('online'));
           Master.forks()[x].cluster().on('message',Master.comm());
         }
@@ -42,7 +45,10 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         Master.forks()[Master.forkCrash()].shutdown();
         Master.forks(Master.forkCrash(),CreateFork()
           .id(Master.forkCrash())
-          .cluster(cluster.fork({id:Master.forkCrash(),server:Master.config().server}))
+          .cluster(cluster.fork({
+            id:Master.forkCrash(),
+            server:JSON.stringify(Master.config().server)
+          }))
           .status('online'));
         Master.forks()[Master.forkCrash()].cluster().on('message',Master.comm());
         Master.forkCrash(-1);
@@ -55,7 +61,13 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         {
           Master.threads(x,CreateThread()
               .id(x)
-              .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:x,controller:'thread',modules:JSON.stringify(Master.config().site_modules.threads[x].modules)}}))
+              .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{
+                  env:{
+                    id:x,
+                    controller:'thread',
+                    site:JSON.stringify(Master.config().sites[Object.keys(Master.config().sites)[x]])
+                  }
+              }))
               .status('online'));
           Master.threads()[x].fork().on('message',Master.comm());
         }
@@ -65,7 +77,13 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         Master.threads()[Master.threadCrash()].shutdown();
         Master.threads(Master.threadCrash(),CreateThread()
             .id(Master.threadCrash())
-            .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{env:{id:Master.threadCrash(),controller:'thread',modules:JSON.stringify(Master.config().site_modules.threads[Master.threadCrash()].modules)}}))
+            .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{
+              env:{
+                id:Master.threadCrash(),
+                controller:'thread',
+                site:JSON.stringify(Master.config().site[Object.keys(Master.config().site)[Master.threadCrash()]])
+              }
+            }))
             .status('online'));
         Master.threads()[Master.threadCrash()].fork().on('message',Master.comm());
         Master.threadCrash(-1);

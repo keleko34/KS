@@ -1,7 +1,9 @@
 # Logs
-logs
-*.log
+*.logs
 npm-debug.log*
+
+# Dev
+*.dev
 
 # Runtime data
 pids

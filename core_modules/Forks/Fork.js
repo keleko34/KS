@@ -10,7 +10,9 @@ module.exports = (function(CreateComm,CreateForkCommands){
       , _cluster = {}
       , _master = {}
       , _config
-      , _comm = CreateComm();
+      , _comm = CreateComm()
+      , _http = {listen:function(){},stop:function(){}}
+      , _https = {listen:function(){},stop:function(){}}
 
     function Fork()
     {
@@ -18,8 +20,11 @@ module.exports = (function(CreateComm,CreateForkCommands){
       .type('fork')
       .channels('master',function(message){process.send(message)})
       .commands()
-      .list(CreateForkCommands().fork(Fork)())
-      .list('fork_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
+      .list(CreateForkCommands().fork(Fork)());
+
+      Fork.comm().commands().list('fork_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
+
+      Fork.comm().commands().list('server_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
     }
 
     Fork.id = function(i)
@@ -79,6 +84,26 @@ module.exports = (function(CreateComm,CreateForkCommands){
         return _comm;
       }
       _comm = (typeof c === 'function' ? c : _comm);
+      return Fork;
+    }
+
+    Fork.http = function(h)
+    {
+      if(h === undefined)
+      {
+        return _http;
+      }
+      _http = (typeof h === 'function' ? h : _http);
+      return Fork;
+    }
+
+    Fork.https = function(h)
+    {
+      if(h === undefined)
+      {
+        return _https;
+      }
+      _https = (typeof h === 'function' ? h : _https);
       return Fork;
     }
 
