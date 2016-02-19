@@ -45,6 +45,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
         process.once('disconnect',function(){
           process.kill(process.pid);
         });
+        process.commands = ForkCommands.fork().comm().commands();
         ForkCommands.fork().status('online');
       }
    }

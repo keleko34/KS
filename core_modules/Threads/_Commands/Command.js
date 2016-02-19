@@ -34,6 +34,7 @@ module.exports = (function(){
         process.once('disconnect',function(){
           process.kill(process.pid);
         });
+        process.commands = ThreadCommands.thread().comm().commands();
         ThreadCommands.thread().status('online');
       }
     }
