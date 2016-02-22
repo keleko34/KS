@@ -10,7 +10,8 @@
     "cool beans"
   ],
   "scripts": {
-    "start": "node start.js"
+    "start": "node start.js",
+    "debug": "node debug start.js"
   },
   "homepage": "https://github.com/keleko34/KS",
   "bugs": {

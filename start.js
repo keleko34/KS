@@ -8,10 +8,11 @@ var Init = require('./core_modules/Init')()
     settings.sites = {};
     Object.keys(settings.vhost).forEach(function(s,i){
       settings.sites[s] = {};
-      settings.sites[s].alias = require('./sites/'+s+'/settings/alias.json');
-      settings.sites[s].database = require('./sites/'+s+'/settings/database.json');
-      settings.sites[s].site_modules = require('./sites/'+s+'/settings/site_modules.json');
-      settings.sites[s].smtp = require('./sites/'+s+'/settings/smtp.json');
+      settings.sites[s].alias = require('./settings/sites/'+s+'/alias.json');
+      settings.sites[s].database = require('./settings/sites/'+s+'/database.json');
+      settings.sites[s].site_modules = require('./settings/sites/'+s+'/site_modules.json');
+      settings.sites[s].smtp = require('./settings/sites/'+s+'/smtp.json');
+      settings.sites[s].app = require('./settings/sites/'+s+'/app.json');
     });
 
 Init(settings);

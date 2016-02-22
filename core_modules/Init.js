@@ -31,7 +31,7 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
         Init.fork()
         .id(process.env.id)
         .master(process)
-        .config((process.env.server !== undefined ? JSON.parse(process.env.server) : {}))
+        .config(config)
         .call(Init.fork(),config)
       }
     }

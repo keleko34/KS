@@ -2,7 +2,6 @@ module.exports = (function(){
   function CreateHTTP()
   {
     var _port = 8080
-      , _base = './app'
       , _status = 'offline'
       , _statusEnum = ['online','offline']
       , _server = {listen:function(){},stop:function(){}};
@@ -28,16 +27,6 @@ module.exports = (function(){
         return _port;
       }
       _port = ((typeof p === 'number' || !isNaN(parseInt(p,10))) ? parseInt(p,10) : _port);
-      return HTTP;
-    }
-
-    HTTP.base = function(b)
-    {
-      if(b === undefined)
-      {
-        return _base;
-      }
-      _base = ((typeof b === 'string' && b.indexOf('.') === 0) ? b : _base);
       return HTTP;
     }
 

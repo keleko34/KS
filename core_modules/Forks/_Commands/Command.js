@@ -6,8 +6,11 @@ var http_module = require(server_modules_path+'/HTTP/HTTP')
   , https_server_module = require('https')
   , request_module = require(server_modules_path+'/Request/Request')
   , response_module = require(server_modules_path+'/Response/Response')
+  , path_module = require('path')
+  , url_module = require('url')
+  , query_module = require('querystring')
 
-module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,http,https){
+module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,http,https,path,url,querystring){
   function CreateForkCommands()
   {
     var _fork = function(){};
@@ -59,20 +62,24 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
 
                 CreateRequest()
                 .config(ForkCommands.fork().config())
-                .url((req.url !== undefined ? req.url : '/'))
+                .url(decodeURI(req.url !== undefined ? req.url : '/'))
+                .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+                .path(path.parse(decodeURI(req.url !== undefined ? req.url : '/')))
                 .query((req.query !== undefined) ? req.query : {})
-                .onResponse(function(content,headers){
+                .queryString(querystring.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+                .headers((req.headers !== undefined ? req.headers : {host:'localhost'}))
+                .onResponse(function(content,headers,isStream){
 
                     CreateResponse()
                     .content(content)
                     .headers(headers)
+                    .type((isStream ? 'stream' : 'content'))
                     .call(ForkCommands.fork().http(),res);
 
                 })
                 .call(ForkCommands.fork().http(),req);
           }))
-          .port((data.config.http !== undefined ? data.config.http.port : 8080))
-          .base((data.config.http !== undefined ? data.config.http.base : './app'))
+          .port((data.config.server.http !== undefined ? data.config.server.http.port : 8080))
           .status('online'))
           .http()
           .call(ForkCommands.fork().http());
@@ -98,4 +105,4 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
     return ForkCommands;
   }
   return CreateForkCommands;
-}(http_module,https_module,request_module,response_module,http_server_module,https_server_module));
+}(http_module,https_module,request_module,response_module,http_server_module,https_server_module,path_module,url_module,query_module));
