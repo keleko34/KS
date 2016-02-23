@@ -22,18 +22,15 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
       var _vHost = CreateVhost().host(Request.host()).request(Request.parsedUrl().pathname)
         , _file  = CreateFile()
         , _siteConfig = config.sites[_vHost.host()]
-        , _base = (_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : '/app') : '/app')
       if(_siteConfig !== undefined)
       {
+        var _base = (_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : '/app') : '/app')
         if(Request.queryString().env !== undefined)
         {
           _base = _siteConfig.app.env[Request.queryString().env];
-          console.log(_base);
         }
         _vHost.base(_base)
         .admin((_siteConfig.app !== undefined ? (_siteConfig.app.admin !== undefined ? _siteConfig.app.admin : true) : true));
-
-        console.log('incoming request: ', Request.parsedUrl().pathname,' on: ',_vHost.host(),' link: ',_vHost());
 
         _file.base(_vHost())
         .path(Request.path())
@@ -48,11 +45,10 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
           if(content === undefined && err !== undefined)
           {
               Request.onResponse()
-              .call(Request,CreateError().type(err)(),CreateHeader().status(err).contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req));
+              .call(Request,CreateError().type(err)(),CreateHeader().status(err).contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req),true);
           }
           else
           {
-            console.log(_siteConfig.content_types[contentType],contentType);
             Request.onResponse()
               .call(Request,content,CreateHeader().contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req),true);
             return;

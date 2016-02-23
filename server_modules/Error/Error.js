@@ -1,4 +1,6 @@
-module.exports = (function(){
+var fs_module = require('fs')
+
+module.exports = (function(fs){
   function CreateError()
   {
     var _type = 0
@@ -6,14 +8,7 @@ module.exports = (function(){
 
     function Error()
     {
-      switch(Error.type())
-      {
-        case 404:
-          return "404 sorry no file here";
-        case 500:
-          return "500 Access to here is denied"
-      }
-      return ""
+      return fs.createReadStream('./server_modules/Error/templates/'+Error.type()+'.html');
     }
 
     Error.type = function(t)
@@ -29,4 +24,4 @@ module.exports = (function(){
     return Error;
   }
   return CreateError;
-}());
+}(fs_module));

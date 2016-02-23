@@ -80,7 +80,6 @@ module.exports = (function(fs,path){
 
     File.checkDirectory = function(dir,cb,err)
     {
-      console.log('checking dir: ',dir);
       fs.readdir(dir,function(error,files){
         if(!error)
         {
@@ -102,13 +101,10 @@ module.exports = (function(fs,path){
 
     File.exists = function(cb,err)
     {
-      console.log("fle path ",File.path());
       if(File.ext().length < 1)
       {
         File.path(path.parse(File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base+'/index.html'));
       }
-      console.log(File.path());
-      console.log(File.base(),File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base);
       fs.stat(File.base()+File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base,function(error,stats){
         if(!error)
         {
