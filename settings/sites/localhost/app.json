@@ -1,4 +1,8 @@
 {
-  "base":"./app/prod",
-  "admin":true
+  "base":"/app",
+  "admin":true,
+  "env":{
+    "dev":"/dev",
+    "qa":"/qa"
+  }
 }

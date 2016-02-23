@@ -15,6 +15,7 @@ module.exports = (function(){
           res.setHeader(h,Response.headers()[h]);
         }
       });
+
       if(Response.type() === 'stream')
       {
         Response.content().pipe(res);

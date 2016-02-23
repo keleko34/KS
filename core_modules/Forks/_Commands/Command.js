@@ -57,13 +57,14 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
   {
     if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
+
         var serverRequest = function(req,res){
             CreateRequest()
             .url(decodeURI(req.url !== undefined ? req.url : '/'))
             .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-            .path(path.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname))
             .query((req.query !== undefined) ? req.query : {})
-            .queryString(querystring.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .queryString(querystring.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).query))
             .host((req.headers !== undefined ? (req.headers.host !== undefined ? req.headers.host : 'localhost') : 'localhost'))
             .onResponse(function(content,headers,isStream){
               CreateResponse()

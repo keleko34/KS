@@ -1,6 +1,7 @@
-var fs_module = require('fs');
+var fs_module = require('fs')
+  , path_module = require('path');
 
-module.exports = (function(fs){
+module.exports = (function(fs,path){
   function CreateFile()
   {
     var _ext = ''
@@ -12,19 +13,19 @@ module.exports = (function(fs){
     {
       var currentDirectory = File.base()
         , foundError = false;
-      console.log(File.base(),File.path());
-      File.path().split('/').forEach(function(d,i){
+      File.path().dir.split('/',(File.path().dir.length)).forEach(function(d,i){
         if(!foundError)
         {
-          currentDirectory = currentDirectory+'/'+d;
+          currentDirectory = currentDirectory+(currentDirectory.lastIndexOf('/') !== (currentDirectory.length-1) ? '/' : '')+d;
+
           File.checkDirectory(currentDirectory,function(){
-              if(i >= (File.path().split('/').length-1))
+              if(i >= (File.path().dir.split('/',(File.path().dir.length)).length-1))
               {
                 File.exists(function(){
                   File.callback()
-                  .call(File,fs.createReadStream(File.base()+File.path())
+                  .call(File,fs.createReadStream(File.base()+File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base)
                         , undefined
-                        , File.path().substring((File.path().indexOf('.')+1),File.path().length))
+                        , File.path().ext.replace('.',''))
                 },function(err){
                   File.callback()(undefined,err,'html');
                 })
@@ -53,7 +54,6 @@ module.exports = (function(fs){
       {
         return _base;
       }
-      console.log(b);
       _base = (typeof b === 'string' && b.indexOf(process.cwd().replace(/\\/g,"/")) > -1 ? b : _base);
       return File;
     }
@@ -64,7 +64,7 @@ module.exports = (function(fs){
       {
         return _path;
       }
-      _path = (typeof p === 'string' ? p : _path);
+      _path = (typeof p === 'object' && p.dir !== undefined ? p : _path);
       return File;
     }
 
@@ -80,6 +80,7 @@ module.exports = (function(fs){
 
     File.checkDirectory = function(dir,cb,err)
     {
+      console.log('checking dir: ',dir);
       fs.readdir(dir,function(error,files){
         if(!error)
         {
@@ -101,16 +102,14 @@ module.exports = (function(fs){
 
     File.exists = function(cb,err)
     {
+      console.log("fle path ",File.path());
       if(File.ext().length < 1)
       {
-        File.path(File.path()+'/index.html');
+        File.path(path.parse(File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base+'/index.html'));
       }
-      console.log(File.base(),File.path());
-      if(File.path().indexOf('/') !== 0)
-      {
-        File.path("/"+File.path())
-      }
-      fs.stat(File.base()+File.path(),function(error,stats){
+      console.log(File.path());
+      console.log(File.base(),File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base);
+      fs.stat(File.base()+File.path().dir+(File.path().dir.length > 1 ? "/" : "")+File.path().base,function(error,stats){
         if(!error)
         {
           if(stats.isFile())
@@ -132,4 +131,4 @@ module.exports = (function(fs){
     return File;
   }
   return CreateFile;
-}(fs_module));
+}(fs_module,path_module));

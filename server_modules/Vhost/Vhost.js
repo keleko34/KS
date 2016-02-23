@@ -23,7 +23,7 @@ module.exports = (function(){
       {
         return _base;
       }
-      _base = (typeof b === 'string' && b.indexOf('./') > -1 ? b.replace('./','') : _base);
+      _base = (typeof b === 'string' && b.indexOf('/') > -1 ? b.replace('/','') : _base);
       return Vhost;
     }
 

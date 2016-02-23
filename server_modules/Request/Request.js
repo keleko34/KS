@@ -11,7 +11,7 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
       , _url =''
       , _query = {}
       , _onResponse = function(content,headers){}
-      , _path = {root:'/',directory:'',base:'',ext:'',name:''}
+      , _path = {root:'/',dir:'',base:'',ext:'',name:''}
       , _querystring = {}
       , _host = 'localhost'
 
@@ -21,17 +21,30 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
        * vhost returns the full directory to a given site determined by the host/domain name */
       var _vHost = CreateVhost().host(Request.host()).request(Request.parsedUrl().pathname)
         , _file  = CreateFile()
-        , _siteConfig = config.sites[_vHost.host()];
+        , _siteConfig = config.sites[_vHost.host()]
+        , _base = (_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : '/app') : '/app')
       if(_siteConfig !== undefined)
       {
-        _vHost.base((_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : './app') : './app'))
+        if(Request.queryString().env !== undefined)
+        {
+          _base = _siteConfig.app.env[Request.queryString().env];
+          console.log(_base);
+        }
+        _vHost.base(_base)
         .admin((_siteConfig.app !== undefined ? (_siteConfig.app.admin !== undefined ? _siteConfig.app.admin : true) : true));
 
         console.log('incoming request: ', Request.parsedUrl().pathname,' on: ',_vHost.host(),' link: ',_vHost());
+
         _file.base(_vHost())
-        .path(('.'+Request.parsedUrl().pathname).replace('./',''))
+        .path(Request.path())
         .ext(Request.path().ext)
         .callback(function(content,err,contentType){
+          if(_siteConfig.content_types[contentType] === undefined)
+          {
+            contentType = 'text/html';
+            content = undefined;
+            err = 404;
+          }
           if(content === undefined && err !== undefined)
           {
               Request.onResponse()
@@ -128,7 +141,7 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
     {
       if(q === undefined)
       {
-        return _queryString;
+        return _querystring;
       }
       _querystring = (typeof q === 'object' ? q : _querystring);
       return Request;
