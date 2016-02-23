@@ -1,5 +1,5 @@
 /* Init Initializes Master and starts entire process */
-var Init = require('./core_modules/Init')()
+var CreateInit = require('./core_modules/Init')
 /* Fetch all the settings so they can be passed down the chain to the modules that need it */
   , settings = require('./settings/main.json');
     settings.server = require('./settings/server.json');
@@ -13,6 +13,7 @@ var Init = require('./core_modules/Init')()
       settings.sites[s].site_modules = require('./settings/sites/'+s+'/site_modules.json');
       settings.sites[s].smtp = require('./settings/sites/'+s+'/smtp.json');
       settings.sites[s].app = require('./settings/sites/'+s+'/app.json');
+      settings.sites[s].content_types = require('./settings/sites/'+s+'/content_types.json');
     });
-
-Init(settings);
+global.config = settings;
+CreateInit().call(global);

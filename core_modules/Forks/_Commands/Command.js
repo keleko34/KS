@@ -55,34 +55,33 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
 
   ForkCommands.server_start = function(data)
   {
-    if(data.config !== undefined && ForkCommands.fork().status() === 'online')
+    if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
-        ForkCommands.fork().http(CreateHTTP()
-            .server(http.createServer(function(req,res){
+        var serverRequest = function(req,res){
+            CreateRequest()
+            .url(decodeURI(req.url !== undefined ? req.url : '/'))
+            .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .path(path.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .query((req.query !== undefined) ? req.query : {})
+            .queryString(querystring.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .host((req.headers !== undefined ? (req.headers.host !== undefined ? req.headers.host : 'localhost') : 'localhost'))
+            .onResponse(function(content,headers,isStream){
+              CreateResponse()
+              .content(content)
+              .headers(headers)
+              .type((isStream ? 'stream' : 'content'))
+              .call(ForkCommands.fork().http(),res);
+            })
+            .call(ForkCommands.fork().http(),req);
+        }
 
-                CreateRequest()
-                .config(ForkCommands.fork().config())
-                .url(decodeURI(req.url !== undefined ? req.url : '/'))
-                .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-                .path(path.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-                .query((req.query !== undefined) ? req.query : {})
-                .queryString(querystring.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-                .headers((req.headers !== undefined ? req.headers : {host:'localhost'}))
-                .onResponse(function(content,headers,isStream){
-
-                    CreateResponse()
-                    .content(content)
-                    .headers(headers)
-                    .type((isStream ? 'stream' : 'content'))
-                    .call(ForkCommands.fork().http(),res);
-
-                })
-                .call(ForkCommands.fork().http(),req);
-          }))
-          .port((data.config.server.http !== undefined ? data.config.server.http.port : 8080))
+        ForkCommands.fork()
+        .http(CreateHTTP()
+          .server(http.createServer(serverRequest))
+          .port((config.server.http !== undefined ? config.server.http.port : 8080))
           .status('online'))
           .http()
-          .call(ForkCommands.fork().http());
+        .call(ForkCommands.fork().http());
     }
   }
 

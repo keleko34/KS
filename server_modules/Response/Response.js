@@ -10,7 +10,7 @@ module.exports = (function(){
     {
       Object.keys(Response.headers())
       .forEach(function(h,i){
-        if(h !== 'status')
+        if(h !== 'statusCode')
         {
           res.setHeader(h,Response.headers()[h]);
         }
@@ -21,7 +21,7 @@ module.exports = (function(){
       }
       else
       {
-        res.statusCode = Response.headers().status;
+        res.statusCode = Response.headers().statusCode;
         res.write(Response.content(),function(){res.end();});
       }
     }

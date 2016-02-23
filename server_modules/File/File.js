@@ -21,14 +21,17 @@ module.exports = (function(fs){
               if(i >= (File.path().split('/').length-1))
               {
                 File.exists(function(){
-                  File.callback()(fs.createReadStream(File.base()+File.path()))
+                  File.callback()
+                  .call(File,fs.createReadStream(File.base()+File.path())
+                        , undefined
+                        , File.path().substring((File.path().indexOf('.')+1),File.path().length))
                 },function(err){
-                  File.callback()(undefined,err);
+                  File.callback()(undefined,err,'html');
                 })
               }
           },function(err){
             foundError = true;
-            File.callback()(undefined,err);
+            File.callback()(undefined,err,'html');
           });
         }
       });

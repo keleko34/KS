@@ -13,7 +13,7 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
     var _master = CreateMaster()
       , _fork = CreateFork();
 
-    function Init(config)
+    function Init()
     {
       /* if is master process, then setup master and call, the fork count is dependent on the number of cpu cores the computer
        * that the application is running on has else if this is a forked process then a fork setup and call is required with
@@ -23,16 +23,14 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
         Init.master()
         .forkCount(os.cpus().length)
         .threadCount((config.sites !== undefined ? Object.keys(config.sites).length : 1))
-        .config(config)
-        .call(Init.master(),config)
+        .call(Init.master())
       }
       else
       {
         Init.fork()
         .id(process.env.id)
         .master(process)
-        .config(config)
-        .call(Init.fork(),config)
+        .call(Init.fork())
       }
     }
 

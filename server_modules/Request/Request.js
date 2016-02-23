@@ -8,38 +8,40 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
   {
     var _requestOrder = ['alias','vhost','firewall','file','rest','directory','error']
       , _requestOrderEnum = ['alias','vhost','firewall','file','rest','directory','error']
-      , _config = {}
       , _url =''
       , _query = {}
       , _onResponse = function(content,headers){}
       , _path = {root:'/',directory:'',base:'',ext:'',name:''}
       , _querystring = {}
-      , _headers = {host:'localhost'}
+      , _host = 'localhost'
 
     function Request(req)
     {
       /* set up the vhost localization, if admin is allowed whenever the url request /admin is inputed it will go to admin panel from any site
        * vhost returns the full directory to a given site determined by the host/domain name */
-      var vHost = CreateVhost().host(Request.headers().host).request(Request.parsedUrl().pathname)
-        , siteConfig = Request.config().sites[vHost.host()];
-      if(siteConfig !== undefined)
+      var _vHost = CreateVhost().host(Request.host()).request(Request.parsedUrl().pathname)
+        , _file  = CreateFile()
+        , _siteConfig = config.sites[_vHost.host()];
+      if(_siteConfig !== undefined)
       {
-        vHost.base((siteConfig.app !== undefined ? (siteConfig.app.base !== undefined ? siteConfig.app.base : './app') : './app'))
-        .admin((siteConfig.app !== undefined ? (siteConfig.app.admin !== undefined ? siteConfig.app.admin : true) : true));
-        console.log('incoming request: ', Request.parsedUrl().pathname,' on: ',vHost.host(),' link: ',vHost());
-        CreateFile().base(vHost())
+        _vHost.base((_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : './app') : './app'))
+        .admin((_siteConfig.app !== undefined ? (_siteConfig.app.admin !== undefined ? _siteConfig.app.admin : true) : true));
+
+        console.log('incoming request: ', Request.parsedUrl().pathname,' on: ',_vHost.host(),' link: ',_vHost());
+        _file.base(_vHost())
         .path(('.'+Request.parsedUrl().pathname).replace('./',''))
         .ext(Request.path().ext)
-        .callback(function(content,err){
+        .callback(function(content,err,contentType){
           if(content === undefined && err !== undefined)
           {
               Request.onResponse()
-              .call(Request,CreateError().type(err)(),CreateHeader().status(err)(req));
+              .call(Request,CreateError().type(err)(),CreateHeader().status(err).contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req));
           }
           else
           {
+            console.log(_siteConfig.content_types[contentType],contentType);
             Request.onResponse()
-              .call(Request,content,CreateHeader()(req),true);
+              .call(Request,content,CreateHeader().contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req),true);
             return;
           }
         })
@@ -82,24 +84,13 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
       return Request;
     }
 
-    /* config is updated with every request to the curent config, as changes may have happened from admin */
-    Request.config = function(c)
-    {
-      if(c === undefined)
-      {
-        return _config;
-      }
-      _config = (typeof c === 'object' ? c : _config);
-      return Request;
-    }
-
-    Request.headers = function(h)
+    Request.host = function(h)
     {
       if(h === undefined)
       {
-        return _headers;
+        return _host;
       }
-      _headers = (typeof h === 'object' && h.host !== undefined ? h : _headers);
+      _host = (typeof h === 'string' ? h : _host);
       return Request;
     }
 

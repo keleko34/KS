@@ -9,7 +9,6 @@ module.exports = (function(CreateComm,CreateForkCommands){
       , _statusEnum = ['offline','online','exception']
       , _cluster = {}
       , _master = {}
-      , _config
       , _comm = CreateComm()
       , _http = {listen:function(){},stop:function(){}}
       , _https = {listen:function(){},stop:function(){}}
@@ -22,9 +21,9 @@ module.exports = (function(CreateComm,CreateForkCommands){
       .commands()
       .list(CreateForkCommands().fork(Fork)());
 
-      Fork.comm().commands().list('fork_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
+      Fork.comm().commands().list('fork_start')({id:Fork.id(),status:Fork.status()});
 
-      Fork.comm().commands().list('server_start')({id:Fork.id(),status:Fork.status(),config:Fork.config()});
+      Fork.comm().commands().list('server_start')({id:Fork.id(),status:Fork.status()});
     }
 
     Fork.id = function(i)
@@ -64,16 +63,6 @@ module.exports = (function(CreateComm,CreateForkCommands){
         return _master;
       }
       _master = (m === process ? m : _master);
-      return Fork;
-    }
-
-    Fork.config = function(c)
-    {
-      if(c === undefined)
-      {
-        return _config;
-      }
-      _config = (c.constructor === Object ? c : _config);
       return Fork;
     }
 

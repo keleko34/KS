@@ -16,7 +16,6 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       , _forks = []
       , _threads = []
       , _comm = CreateComm()
-      , _config = {}
 
     /* if the amount of forks that are allocated in the forks array are less than what is expected or if a fork has crashed
      * then the associated forks will be respawned or the newly needed forks will be created */
@@ -32,7 +31,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
             .id(x)
             .cluster(cluster.fork({
               id:x,
-              server:JSON.stringify(Master.config().server)
+              server:JSON.stringify(config.server)
             }))
             .status('online'));
           Master.forks()[x].cluster().on('message',Master.comm());
@@ -47,7 +46,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
           .id(Master.forkCrash())
           .cluster(cluster.fork({
             id:Master.forkCrash(),
-            server:JSON.stringify(Master.config().server)
+            server:JSON.stringify(config.server)
           }))
           .status('online'));
         Master.forks()[Master.forkCrash()].cluster().on('message',Master.comm());
@@ -65,7 +64,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
                   env:{
                     id:x,
                     controller:'thread',
-                    site:JSON.stringify(Master.config().sites[Object.keys(Master.config().sites)[x]])
+                    site:JSON.stringify(config.sites[Object.keys(config.sites)[x]])
                   }
               }))
               .status('online'));
@@ -81,7 +80,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
               env:{
                 id:Master.threadCrash(),
                 controller:'thread',
-                site:JSON.stringify(Master.config().site[Object.keys(Master.config().site)[Master.threadCrash()]])
+                site:JSON.stringify(config.site[Object.keys(config.site)[Master.threadCrash()]])
               }
             }))
             .status('online'));
@@ -199,16 +198,6 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         return _comm;
       }
       _comm = (typeof c === 'function' ? c : _comm);
-      return Master;
-    }
-
-    Master.config = function(c)
-    {
-      if(c === undefined)
-      {
-        return _config;
-      }
-      _config = (c.constructor === Object ? c : _config);
       return Master;
     }
 
