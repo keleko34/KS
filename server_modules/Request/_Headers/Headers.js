@@ -1,17 +1,12 @@
 module.exports = (function(){
   function CreateHeader()
   {
-    var _status = undefined;
+    var _status = 200;
 
     function Header(req)
     {
       var _header = {};
-
-      if(Header.status() !== undefined)
-      {
-        _header.status = Header.status();
-      }
-
+      _header.status = Header.status();
       return _header;
     }
 

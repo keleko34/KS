@@ -3,7 +3,7 @@ var headers_module = require('./_Headers/Headers')
   , error_module = require('./../Error/Error')
   , file_module = require('./../File/File')
 
-module.exports = (function(CreateHeader,CreateVhost,CreateFile){
+module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
   function CreateRequest()
   {
     var _requestOrder = ['alias','vhost','firewall','file','rest','directory','error']
@@ -18,50 +18,38 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile){
 
     function Request(req)
     {
-
       /* set up the vhost localization, if admin is allowed whenever the url request /admin is inputed it will go to admin panel from any site
        * vhost returns the full directory to a given site determined by the host/domain name */
-      var vHost = CreateVhost().host(Request.headers().host)
+      var vHost = CreateVhost().host(Request.headers().host).request(Request.parsedUrl().pathname)
         , siteConfig = Request.config().sites[vHost.host()];
       if(siteConfig !== undefined)
       {
         vHost.base((siteConfig.app !== undefined ? (siteConfig.app.base !== undefined ? siteConfig.app.base : './app') : './app'))
         .admin((siteConfig.app !== undefined ? (siteConfig.app.admin !== undefined ? siteConfig.app.admin : true) : true));
-
-        CreateFile().base(vHost(''))
-        .path(Request.url())
+        console.log('incoming request: ', Request.parsedUrl().pathname,' on: ',vHost.host(),' link: ',vHost());
+        CreateFile().base(vHost())
+        .path(('.'+Request.parsedUrl().pathname).replace('./',''))
         .ext(Request.path().ext)
         .callback(function(content,err){
           if(content === undefined && err !== undefined)
           {
-            if(typeof err === 'number')
-            {
               Request.onResponse()
               .call(Request,CreateError().type(err)(),CreateHeader().status(err)(req));
-            }
-            else
-            {
-              Request.onResponse()
-              .call(Request,"No index here",CreateHeader().status(404)(req));
-            }
           }
           else
           {
             Request.onResponse()
               .call(Request,content,CreateHeader()(req),true);
+            return;
           }
-        });
-
+        })
+        .call(Request);
       }
       else
       {
         Request.onResponse()
         .call(Request,"No site config was set up for this url, please create the configs through the admin panel",CreateHeader().status(404)(req));
-        return;
       }
-
-      Request.onResponse()
-      .call(Request,"",CreateHeader().status(404)(req));
     }
 
     /* this is the request order in which checks should happen, so the request goes through each check in order */
@@ -178,4 +166,4 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile){
     return Request;
   }
   return CreateRequest;
-}(headers_module,vhost_module,file_module));
+}(headers_module,vhost_module,file_module,error_module));

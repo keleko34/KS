@@ -10,16 +10,19 @@ module.exports = (function(){
     {
       Object.keys(Response.headers())
       .forEach(function(h,i){
-        res.setHeader(h,Response.headers()[h]);
+        if(h !== 'status')
+        {
+          res.setHeader(h,Response.headers()[h]);
+        }
       });
       if(Response.type() === 'stream')
       {
-        res.pipe(Response.content());
+        Response.content().pipe(res);
       }
       else
       {
-        res.write(Response.content());
-        res.end();
+        res.statusCode = Response.headers().status;
+        res.write(Response.content(),function(){res.end();});
       }
     }
 

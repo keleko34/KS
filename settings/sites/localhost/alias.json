@@ -1,5 +1,4 @@
 {
-  "/":"./prod",
-  "/dev":"./dev",
-  "/qa":"./qa"
+  "?env=dev*":"/dev",
+  "?env=qa*":"/qa"
 }

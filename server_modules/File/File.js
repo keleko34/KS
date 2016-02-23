@@ -6,22 +6,21 @@ module.exports = (function(fs){
     var _ext = ''
       , _path = ''
       , _exists = false
-      , _base = process.cwd().replace(/\\/g,"/")
+      , _base = 'C:/'
 
     function File()
     {
       var currentDirectory = File.base()
         , foundError = false;
+      console.log(File.base(),File.path());
       File.path().split('/').forEach(function(d,i){
         if(!foundError)
         {
           currentDirectory = currentDirectory+'/'+d;
           File.checkDirectory(currentDirectory,function(){
-
-              if(i >= (File.splitPath().length-1))
+              if(i >= (File.path().split('/').length-1))
               {
                 File.exists(function(){
-                  console.log('sending: ',File.base()+File.path());
                   File.callback()(fs.createReadStream(File.base()+File.path()))
                 },function(err){
                   File.callback()(undefined,err);
@@ -51,6 +50,7 @@ module.exports = (function(fs){
       {
         return _base;
       }
+      console.log(b);
       _base = (typeof b === 'string' && b.indexOf(process.cwd().replace(/\\/g,"/")) > -1 ? b : _base);
       return File;
     }
@@ -80,12 +80,14 @@ module.exports = (function(fs){
       fs.readdir(dir,function(error,files){
         if(!error)
         {
-          if(files.indexOf((File.base().substring(File.base().lastIndexOf('/'),File.base().length))))
+          if(files.indexOf((File.base().substring((File.base().lastIndexOf('/')+1),File.base().length))) < 0)
+          {
+            cb();
+          }
+          else
           {
             err(500);
-            return;
           }
-          cb();
         }
         else
         {
@@ -100,16 +102,27 @@ module.exports = (function(fs){
       {
         File.path(File.path()+'/index.html');
       }
-      fs.stats(File.base()+File.path(),function(error,stats){
+      console.log(File.base(),File.path());
+      if(File.path().indexOf('/') !== 0)
+      {
+        File.path("/"+File.path())
+      }
+      fs.stat(File.base()+File.path(),function(error,stats){
         if(!error)
         {
           if(stats.isFile())
           {
             cb();
           }
+          else
+          {
+            err(404);
+          }
+        }
+        else
+        {
           err(404);
         }
-        err('index');
       });
     }
 

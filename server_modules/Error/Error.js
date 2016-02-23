@@ -9,9 +9,9 @@ module.exports = (function(){
       switch(Error.type())
       {
         case 404:
-          return "sorry no file here";
+          return "404 sorry no file here";
         case 500:
-          return "Access to here is denied"
+          return "500 Access to here is denied"
       }
       return ""
     }

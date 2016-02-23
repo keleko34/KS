@@ -1,4 +1,4 @@
 {
-  "base":"./app",
+  "base":"./app/prod",
   "admin":true
 }

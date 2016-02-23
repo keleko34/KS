@@ -5,15 +5,15 @@ module.exports = (function(){
       , _host = 'localhost'
       , _admin = true
 
-    function Vhost(req)
+    function Vhost()
     {
-      if(req.indexOf('/admin') === 0 && Vhost.admin())
+      if(Vhost.request().indexOf('/admin') === 0 && Vhost.admin())
       {
-        return (process.cwd()+req).replace(/\\/g,"/");
+        return (process.cwd()).replace(/\\/g,"/");
       }
       else
       {
-        return (process.cwd()+'/sites/'+Vhost.host()+'/'+Vhost.base()+req).replace(/\\/g,"/");
+        return (process.cwd()+'/sites/'+Vhost.host()+'/'+Vhost.base()).replace(/\\/g,"/");
       }
     }
 
@@ -34,6 +34,16 @@ module.exports = (function(){
         return _host;
       }
       _host = (typeof n === 'string' ? (n.indexOf(':') > -1 ? (n.substring(0,n.indexOf(':'))) : n) : _host);
+      return Vhost;
+    }
+
+    Vhost.request = function(r)
+    {
+      if(r === undefined)
+      {
+        return _request;
+      }
+      _request = (typeof r === 'string' && r.indexOf('/') > -1 ? r : _request);
       return Vhost;
     }
 
