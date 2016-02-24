@@ -43,7 +43,10 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
         process.send({command:'echo',data:{message:'Started: Fork:   '+data.id+' PID: '+process.pid}});
         process.once('uncaughtException',ForkCommands.fork().exception());
         process.on('message',ForkCommands.fork().comm());
-        process.on('error',function(msg){console.log('ERR,',msg,' From Fork '+ForkCommands.fork().id());})
+        process.on('error',function(err){
+          console.error('ERR,',err,' From Fork '+ForkCommands.fork().id());
+          console.error("ERR Stack",err.stack);
+        })
         process.once('disconnect',function(){
           process.kill(process.pid);
         });

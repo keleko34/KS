@@ -129,7 +129,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
     Thread.exception = function()
     {
       return function(err){
-        console.log('ERR: ',err);
+        console.error('ERR: \033[31m',err.stack,"\033[37m");
         //send error as well, later for modules
         process.send({command:'crash',data:{type:'thread',id:Thread.id()}});
       }

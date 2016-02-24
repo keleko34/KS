@@ -1,18 +1,18 @@
 var headers_module = require('./_Headers/Headers')
   , response_module = require('./_Response/Response')
 
-module.exports = (function(CreateHeaders,CreateResponse){
+module.exports = (function(CreateHeader,CreateResponse){
   function CreateSend(res)
   {
     var _stream = false
       , _content = ""
       , _error = 404
-      , _host = 'localhost'
+      , _host = ''
       , _ext = ''
 
     function Send(res)
     {
-      var _header = CreateHeaders();
+      var _header = CreateHeader();
       if(config.sites[Send.host()] !== undefined && config.sites[Send.host()].content_types[Send.ext()] !== undefined)
       {
         if(Send.error())
@@ -26,7 +26,7 @@ module.exports = (function(CreateHeaders,CreateResponse){
       else
       {
         _header.status(Send.error())
-        .contenType('text/html')
+        .contentType('text/html')
         .encoding('utf8');
       }
       CreateResponse()

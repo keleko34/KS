@@ -24,6 +24,7 @@ module.exports = (function(CreateComm,CreateForkCommands){
       Fork.comm().commands().list('fork_start')({id:Fork.id(),status:Fork.status()});
 
       Fork.comm().commands().list('server_start')({id:Fork.id(),status:Fork.status()});
+
     }
 
     Fork.id = function(i)
@@ -99,7 +100,7 @@ module.exports = (function(CreateComm,CreateForkCommands){
     Fork.exception = function()
     {
       return function(err){
-        console.log('ERR: ',err);
+        console.error('ERR: \033[31m',err.stack,"\033[37m");
         //send error as well, later for modules
         process.send({command:'crash',data:{type:'fork',id:Fork.id()}});
       }

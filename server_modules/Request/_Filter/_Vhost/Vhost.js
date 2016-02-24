@@ -1,7 +1,7 @@
 module.exports = (function(){
   function CreateVhost()
   {
-    var _host = 'localhost'
+    var _host = ''
       , _admin = true
 
     function Vhost()

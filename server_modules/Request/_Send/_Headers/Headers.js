@@ -14,7 +14,7 @@ module.exports = (function(){
         "Content-Type":Header.contentType(),
         "Encoding":Header.encoding()
       };
-      if(Header.cached())
+      if(!Header.cached())
       {
         _headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
         _headers["Pragma"] = "no-cache";

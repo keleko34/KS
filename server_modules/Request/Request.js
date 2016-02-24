@@ -14,7 +14,7 @@ module.exports = (function(CreateFilter,CreateSend){
       , _config = {}
       , _path = {root:'/',dir:'',base:'',ext:'',name:''}
       , _querystring = {}
-      , _host = 'localhost'
+      , _host = ''
       , _location = process.cwd().replace(/\\/g,"/")
 
     function Request(res)
