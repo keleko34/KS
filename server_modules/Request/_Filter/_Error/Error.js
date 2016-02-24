@@ -10,7 +10,6 @@ module.exports = (function(fs){
     {
       this.base((this.base() !== '/admin' ? '/errors' : this.base()+'/errors'));
       this.url('/'+Error.type()+'.html');
-      console.log(this.location(),this.base(),this.url());
       return fs.createReadStream(this.location()+this.base()+this.url());
     }
 
