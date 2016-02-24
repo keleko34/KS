@@ -166,6 +166,7 @@ module.exports = (function(fs,path){
     File.exists = function(f,cb,err)
     {
       fs.stat(f,function(error,stats){
+        console.log('check');
         if(!error)
         {
           if(stats.isFile())
