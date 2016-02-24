@@ -80,7 +80,7 @@ module.exports = (function(CreateFilter,CreateSend){
       {
         return _host;
       }
-      _host = (typeof n === 'string' ? (n.indexOf(':') > -1 ? (n.substring(0,n.indexOf(':'))) : n) : _host);
+      _host = (typeof h === 'string' ? (h.indexOf(':') > -1 ? (h.substring(0,h.indexOf(':'))) : h) : _host);
       return Request;
     }
 
@@ -121,6 +121,17 @@ module.exports = (function(CreateFilter,CreateSend){
         return _location;
       }
       _location = (typeof u === 'string' ? u.replace(/\\/g,"/") : _location);
+      return Request;
+    }
+
+    Request.ip = function(i)
+    {
+      if(i === undefined)
+      {
+        return _ip;
+      }
+      _ip = (typeof i === 'string' ? (i.substring(0,(i.indexOf(' ,') > -1 ? i.indexOf(' ,') : i.length)).replace('::1','').replace('::ffff:','')) : _ip);
+      _ip = (_ip.length < 1 ? 'localhost' : _ip);
       return Request;
     }
 

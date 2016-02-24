@@ -71,7 +71,8 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
             .query((req.query !== undefined) ? req.query : {})
             .queryString(querystring.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').query)))
             .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname));
+            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname))
+            .ip((req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress))
 
             _request.config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
             .base((_request.config().app !== undefined) ? _request.config().app.base : '/app')

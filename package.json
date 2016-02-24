@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "start": "node start.js",
-    "debug": "node debug start.js"
+    "debug": "node debug start.js",
+    "dev": "node --debug start.js"
   },
   "homepage": "https://github.com/keleko34/KS",
   "bugs": {

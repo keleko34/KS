@@ -27,7 +27,7 @@ module.exports = (function(){
       {
         return _host;
       }
-      _host = (typeof h === 'string' ? h : _host);
+      _host = (typeof h === 'string' ? (h.indexOf(':') > -1 ? (h.substring(0,h.indexOf(':'))) : h) : _host);
       return Env;
     }
 
