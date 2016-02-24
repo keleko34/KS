@@ -14,6 +14,7 @@ var CreateInit = require('./core_modules/Init')
       settings.sites[s].smtp = require('./settings/sites/'+s+'/smtp.json');
       settings.sites[s].app = require('./settings/sites/'+s+'/app.json');
       settings.sites[s].content_types = require('./settings/sites/'+s+'/content_types.json');
+      settings.sites[s].firewall = require('./settings/sites/'+s+'/firewall.json');
     });
 global.config = settings;
 CreateInit().call(global);

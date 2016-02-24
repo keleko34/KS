@@ -1,0 +1,4 @@
+function yay()
+{
+  return "yay";
+}

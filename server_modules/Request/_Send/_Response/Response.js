@@ -5,13 +5,13 @@ module.exports = (function(){
     {
       Object.keys(Response.headers())
       .forEach(function(h,i){
-        if(h !== 'statusCode')
+        if(h !== 'StatusCode')
         {
           res.setHeader(h,Response.headers()[h]);
         }
         else
         {
-          res.statusCode = Response.headers().statusCode;
+          res.statusCode = Response.headers().StatusCode;
         }
       });
 

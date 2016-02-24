@@ -5,7 +5,8 @@ module.exports = (function(){
       , _contentType = 'text/plain'
       , _encoding = 'utf8'
       , _encodingEnum = ['utf8','byte']
-      , _cached = false;
+      , _cached = false
+      , _location = undefined
 
     function Header(req)
     {
@@ -23,6 +24,10 @@ module.exports = (function(){
       else
       {
         _headers["Cache-Control"] = "max-age=600000";
+      }
+      if(Header.location() !== undefined)
+      {
+        _headers["Location"] = Header.location();
       }
       return _headers;
     }
@@ -64,6 +69,16 @@ module.exports = (function(){
         return _cached;
       }
       _cached = !!s;
+      return Header;
+    }
+
+    Header.location = function(l)
+    {
+      if(l === undefined)
+      {
+        return _location;
+      }
+      _location = (typeof l === 'string' && l.indexOf('http') > -1 ? l : _location);
       return Header;
     }
 

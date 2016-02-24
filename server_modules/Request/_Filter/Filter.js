@@ -3,12 +3,13 @@ var env_module = require('./_Env/Env')
   , alias_module = require('./_Alias/Alias')
   , file_module = require('./_File/File')
   , error_module = require('./_Error/Error')
+  , firewall_module = require('./_Firewall/Firewall')
 
-module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFile,CreateError){
+module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,CreateFile,CreateError){
   function CreateFilter()
   {
     var _type = 'env'
-      , _typeEnum = ['env','vhost','alias','file','directory','module','error']
+      , _typeEnum = ['env','vhost','alias','firewall','file','directory','module','error']
       , _pipe = function(){}
       , _error = function(){}
       , _then = function(){}
@@ -34,6 +35,14 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFile,CreateEr
           .host(this.host())
           .request(this.url());
           return _vhost.call(this);
+
+        case 'firewall':
+          var _firewall = CreateFirewall()
+          .host(this.host())
+          .ip(this.ip())
+          .base(this.base())
+          .url(this.url())
+          return _firewall.call(this);
 
         case 'file':
           CreateFile()
@@ -113,4 +122,4 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFile,CreateEr
     return Filter;
   }
   return CreateFilter;
-}(env_module,vhost_module,alias_module,file_module,error_module));
+}(env_module,vhost_module,alias_module,firewall_module,file_module,error_module));

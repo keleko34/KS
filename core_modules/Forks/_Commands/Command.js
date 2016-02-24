@@ -62,6 +62,8 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
 
         var serverRequest = function(req,res){
 
+          console.log(req.headers.referer, req.url);
+
             var _request = CreateRequest()
             .url(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname))
             .ext(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).ext.replace('.',''))
@@ -73,8 +75,13 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
             .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
             .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname))
             .ip((req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress))
+            .port((config.server.http !== undefined ? config.server.http.port : 8080))
+            .protocol('http')
 
-            _request.config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
+            var _referer = (req.headers.referer !== undefined ? (req.headers.referer.substring(req.headers.referer.indexOf(req.headers.host)+req.headers.host.length,req.headers.referer.length)) : undefined)
+
+            _request.url((_referer !== undefined ? _referer+_request.url() : _request.url()))
+            .config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
             .base((_request.config().app !== undefined) ? _request.config().app.base : '/app')
             .call(ForkCommands.fork().http(),res);
         }

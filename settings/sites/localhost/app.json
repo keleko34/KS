@@ -2,6 +2,7 @@
   "base":"/app",
   "admin":true,
   "cached":false,
+  "firewall":true,
   "env":{
     "dev":"/dev",
     "qa":"/qa"

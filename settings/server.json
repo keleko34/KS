@@ -1,5 +1,4 @@
 {
-  "firewall":false,
   "rest":
   {
       "http":false,

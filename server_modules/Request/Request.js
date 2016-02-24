@@ -16,13 +16,19 @@ module.exports = (function(CreateFilter,CreateSend){
       , _querystring = {}
       , _host = ''
       , _location = process.cwd().replace(/\\/g,"/")
+      , _ip = ''
+      , _protocol = 'http'
+      , _protocolEnum = ['http','https']
+      , _port = 8080
 
     function Request(res)
     {
       var _alias = CreateFilter().type('alias').call(Request)
         , _env = CreateFilter().type('env').call(Request)
         , _vhost = CreateFilter().type('vhost').call(Request)
+        , _firewall = (_vhost ? (config.sites[Request.host()].app.firewall ? CreateFilter().type('firewall').call(Request) : true) : false)
         , _error = function(stream,code){
+          //console.log(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url());
               var _send = CreateSend()
               .host(Request.host())
               .ext('html')
@@ -32,8 +38,10 @@ module.exports = (function(CreateFilter,CreateSend){
               .call(Request,res);
           }
         , _pipe = function(stream,ext){
+          //console.log(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url());
                 var _send = CreateSend()
                 .host(Request.host())
+                .location(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url())
                 .ext(ext)
                 .stream(true)
                 .content(stream)
@@ -47,6 +55,10 @@ module.exports = (function(CreateFilter,CreateSend){
       if(!_vhost)
       {
         _createError(1000);
+      }
+      else if(!_firewall)
+      {
+        _createError(500);
       }
       else
       {
@@ -132,6 +144,26 @@ module.exports = (function(CreateFilter,CreateSend){
       }
       _ip = (typeof i === 'string' ? (i.substring(0,(i.indexOf(' ,') > -1 ? i.indexOf(' ,') : i.length)).replace('::1','').replace('::ffff:','')) : _ip);
       _ip = (_ip.length < 1 ? 'localhost' : _ip);
+      return Request;
+    }
+
+    Request.protocol = function(b)
+    {
+      if(b === undefined)
+      {
+        return _protocol;
+      }
+      _protocol = (_protocolEnum.indexOf(b) > -1 ? b : _protocol);
+      return Request;
+    }
+
+    Request.port = function(p)
+    {
+      if(p === undefined)
+      {
+        return _port;
+      }
+      _port = ((typeof p === 'number' || !isNaN(parseInt(p,10))) ? parseInt(p,10) : _port);
       return Request;
     }
 

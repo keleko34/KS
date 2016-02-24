@@ -9,6 +9,7 @@ module.exports = (function(CreateHeader,CreateResponse){
       , _error = 404
       , _host = ''
       , _ext = ''
+      , _location = undefined
 
     function Send(res)
     {
@@ -29,6 +30,8 @@ module.exports = (function(CreateHeader,CreateResponse){
         .contentType('text/html')
         .encoding('utf8');
       }
+      console.log(Send.location());
+      _header.location((Send.location() !== undefined ? Send.location()+"/cool" : ''));
       CreateResponse()
       .stream(Send.stream())
       .headers(_header.call(Send))
@@ -83,6 +86,16 @@ module.exports = (function(CreateHeader,CreateResponse){
         return _content;
       }
       _content = s;
+      return Send;
+    }
+
+    Send.location = function(l)
+    {
+      if(l === undefined)
+      {
+        return _location;
+      }
+      _location = (typeof l === 'string' && l.indexOf('http') > -1 ? l : _location);
       return Send;
     }
 
