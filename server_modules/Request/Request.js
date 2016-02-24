@@ -1,106 +1,65 @@
+var filter_module = require('./_Filter/Filter')
+  , send_module = require('./_Send/Send');
+
+/*
 var headers_module = require('./_Headers/Headers')
   , vhost_module = require('./../Vhost/Vhost')
   , error_module = require('./../Error/Error')
   , file_module = require('./../File/File')
+  */
 
-module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
+module.exports = (function(CreateFilter,CreateSend/*CreateHeader,CreateVhost,CreateFile,CreateError*/){
   function CreateRequest()
   {
-    var _requestOrder = ['alias','vhost','firewall','file','rest','directory','error']
-      , _requestOrderEnum = ['alias','vhost','firewall','file','rest','directory','error']
+    var _pipeOrder = ['file','module','directory','error']
       , _url =''
+      , _ext = ''
+      , _base ='/app'
+      , _fileName = ''
+      , _dir = ''
       , _query = {}
-      , _onResponse = function(content,headers){}
+      , _config = {}
       , _path = {root:'/',dir:'',base:'',ext:'',name:''}
       , _querystring = {}
       , _host = 'localhost'
+      , _location = process.cwd().replace(/\\/g,"/")
 
-    function Request(req)
+    function Request(res)
     {
-      /* set up the vhost localization, if admin is allowed whenever the url request /admin is inputed it will go to admin panel from any site
-       * vhost returns the full directory to a given site determined by the host/domain name */
-      var _vHost = CreateVhost().host(Request.host()).request(Request.parsedUrl().pathname)
-        , _file  = CreateFile()
-        , _siteConfig = config.sites[_vHost.host()]
-      if(_siteConfig !== undefined)
-      {
-        var _base = (_siteConfig.app !== undefined ? (_siteConfig.app.base !== undefined ? _siteConfig.app.base : '/app') : '/app')
-        if(Request.queryString().env !== undefined)
-        {
-          _base = _siteConfig.app.env[Request.queryString().env];
-        }
-        _vHost.base(_base)
-        .admin((_siteConfig.app !== undefined ? (_siteConfig.app.admin !== undefined ? _siteConfig.app.admin : true) : true));
+      var _alias = CreateFilter().type('alias').call(Request)
+        , _env = CreateFilter().type('env').call(Request)
+        , _vhost = CreateFilter().type('vhost').call(Request)
+        , _error = function(stream,code){
+              var _send = CreateSend()
+              .stream(true)
+              .host(Request.host())
+              .ext('html')
+              .content(stream)
+              .error(code)
+              .call(Request,res);
+          }
+        , _pipe = function(stream,ext){
+                var _send = CreateSend()
+                .host(Request.host())
+                .ext(ext)
+                .stream(true)
+                .content(stream)
+                .call(Request,res);
+          }
+        , _createError = function(err)
+          {
+            console.log('err');
+            CreateFilter().type('error').statusCode(err).error(_error).call(Request);
+          }
 
-        _file.base(_vHost())
-        .path(Request.path())
-        .ext(Request.path().ext)
-        .callback(function(content,err,contentType){
-          if(_siteConfig.content_types[contentType] === undefined)
-          {
-            contentType = 'text/html';
-            content = undefined;
-            err = 404;
-          }
-          if(content === undefined && err !== undefined)
-          {
-              Request.onResponse()
-              .call(Request,CreateError().type(err)(),CreateHeader().status(err).contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req),true);
-          }
-          else
-          {
-            Request.onResponse()
-              .call(Request,content,CreateHeader().contentType(_siteConfig.content_types[contentType].type).encoding(_siteConfig.content_types[contentType].encoding)(req),true);
-            return;
-          }
-        })
-        .call(Request);
+      if(!_vhost)
+      {
+        _createError(1000);
       }
       else
       {
-        Request.onResponse()
-        .call(Request,"No site config was set up for this url, please create the configs through the admin panel",CreateHeader().status(404)(req));
+        CreateFilter().type('file').pipe(_pipe).error(_createError).call(Request);
       }
-    }
-
-    /* this is the request order in which checks should happen, so the request goes through each check in order */
-    Request.requestOrder = function(n,t)
-    {
-      if(n === undefined)
-      {
-        return _requestOrder;
-      }
-      if(t === undefined && n.constructor === Array)
-      {
-        var valid = true;
-        n.forEach(function(v,i){
-          if(_typeEnum.indexOf(v) < 0)
-          {
-            valid = false;
-          }
-        });
-        if(valid)
-        {
-          _requestOrder = n;
-        }
-        return Request;
-      }
-      if(typeof t === 'string' && _typeEnum.indexOf(t) > -1)
-      {
-        var i = ((typeof n === 'number' || !isNaN(parseInt(n))) && n <= 5 ? n : 0);
-        _requestOrder[i] = t;
-      }
-      return Request;
-    }
-
-    Request.host = function(h)
-    {
-      if(h === undefined)
-      {
-        return _host;
-      }
-      _host = (typeof h === 'string' ? h : _host);
-      return Request;
     }
 
     Request.url = function(u)
@@ -113,6 +72,66 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
       return Request;
     }
 
+    Request.ext = function(e)
+    {
+      if(e === undefined)
+      {
+        return _ext;
+      }
+      _ext = (typeof e === 'string' ? e : _ext);
+      return Request;
+    }
+
+    Request.host = function(h)
+    {
+      if(h === undefined)
+      {
+        return _host;
+      }
+      _host = (typeof n === 'string' ? (n.indexOf(':') > -1 ? (n.substring(0,n.indexOf(':'))) : n) : _host);
+      return Request;
+    }
+
+    Request.dir = function(h)
+    {
+      if(h === undefined)
+      {
+        return _dir;
+      }
+      _dir = (typeof n === 'string' ? n : _dir);
+      return Request;
+    }
+
+    Request.base = function(b)
+    {
+      if(b === undefined)
+      {
+        return _base;
+      }
+      _base = (typeof b === 'string' ? (b.indexOf('/') !== 0 && b.length > 1 ? "/" : "")+b : _base);
+      return Request;
+    }
+
+    Request.fileName = function(b)
+    {
+      if(b === undefined)
+      {
+        return _fileName;
+      }
+      _fileName = (typeof b === 'string' && b.indexOf('.') > -1 ? b : _fileName);
+      return Request;
+    }
+
+    Request.location = function(u)
+    {
+      if(u === undefined)
+      {
+        return _location;
+      }
+      _location = (typeof u === 'string' ? u.replace(/\\/g,"/") : _location);
+      return Request;
+    }
+
     Request.path = function(c)
     {
       if(c === undefined)
@@ -120,6 +139,16 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
         return _path;
       }
       _path = (typeof c === 'object' && c.ext !== undefined ? c : _path);
+      return Request;
+    }
+
+    Request.config = function(c)
+    {
+      if(c === undefined)
+      {
+        return _config;
+      }
+      _config = (typeof c === 'object' ? c : config);
       return Request;
     }
 
@@ -149,21 +178,11 @@ module.exports = (function(CreateHeader,CreateVhost,CreateFile,CreateError){
       {
         return _parsedUrl;
       }
-      _parsedUrl = (typeof u === 'object' && u.href !== undefined ? u : _parsedUrl);
-      return Request;
-    }
-
-    Request.onResponse = function(o)
-    {
-      if(o === undefined)
-      {
-        return _onResponse;
-      }
-      _onResponse = (typeof o === 'function' ? o : _onResponse);
+      _parsedUrl = (typeof u === 'object' && u.pathname !== undefined ? u : _parsedUrl);
       return Request;
     }
 
     return Request;
   }
   return CreateRequest;
-}(headers_module,vhost_module,file_module,error_module));
+}(filter_module,send_module/*headers_module,vhost_module,file_module,error_module*/));

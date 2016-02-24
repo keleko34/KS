@@ -59,13 +59,25 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
     {
 
         var serverRequest = function(req,res){
-            CreateRequest()
-            .url(decodeURI(req.url !== undefined ? req.url : '/'))
-            .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname))
-            .query((req.query !== undefined) ? req.query : {})
-            .queryString(querystring.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).query))
+
+            var _request = CreateRequest()
+            .url(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname))
+            .ext(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).ext.replace('.',''))
             .host((req.headers !== undefined ? (req.headers.host !== undefined ? req.headers.host : 'localhost') : 'localhost'))
+            .dir(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).dir)
+            .fileName(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).base)
+            .query((req.query !== undefined) ? req.query : {})
+            .queryString(querystring.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').query)))
+            .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
+            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname));
+
+            _request.config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
+            .base((_request.config().app !== undefined) ? _request.config().app.base : '/app')
+            .call(ForkCommands.fork().http(),res);
+
+
+
+            /*
             .onResponse(function(content,headers,isStream){
               CreateResponse()
               .content(content)
@@ -74,6 +86,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
               .call(ForkCommands.fork().http(),res);
             })
             .call(ForkCommands.fork().http(),req);
+            */
         }
 
         ForkCommands.fork()

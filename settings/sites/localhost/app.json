@@ -1,6 +1,7 @@
 {
   "base":"/app",
   "admin":true,
+  "cached":false,
   "env":{
     "dev":"/dev",
     "qa":"/qa"

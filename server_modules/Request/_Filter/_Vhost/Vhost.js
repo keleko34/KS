@@ -1,30 +1,24 @@
 module.exports = (function(){
   function CreateVhost()
   {
-    var _base = 'app'
-      , _host = 'localhost'
+    var _host = 'localhost'
       , _admin = true
 
     function Vhost()
     {
-      if(Vhost.request().indexOf('/admin') === 0 && Vhost.admin())
+      if(config.sites[Vhost.host()] !== undefined)
       {
-        return (process.cwd()).replace(/\\/g,"/");
+        if(Vhost.request().indexOf('/admin') > -1 && config.sites[Vhost.host()].app.admin)
+        {
+          this.location(process.cwd());
+        }
+        else
+        {
+          this.location(process.cwd()+'/sites/'+Vhost.host());
+        }
+        return true;
       }
-      else
-      {
-        return (process.cwd()+'/sites/'+Vhost.host()+'/'+Vhost.base()).replace(/\\/g,"/");
-      }
-    }
-
-    Vhost.base = function(b)
-    {
-      if(b === undefined)
-      {
-        return _base;
-      }
-      _base = (typeof b === 'string' && b.indexOf('/') > -1 ? b.replace('/','') : _base);
-      return Vhost;
+      return false;
     }
 
     Vhost.host = function(n)

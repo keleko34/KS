@@ -1,4 +1,4 @@
 {
-  "?env=dev*":"/dev",
-  "?env=qa*":"/qa"
+  "/dev":"/?env=dev",
+  "/qa":"/?env=qa"
 }
