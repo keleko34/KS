@@ -6,7 +6,7 @@ module.exports = (function(CreateHeaders,CreateResponse){
   {
     var _stream = false
       , _content = ""
-      , _error = false
+      , _error = 404
       , _host = 'localhost'
       , _ext = ''
 
@@ -17,7 +17,7 @@ module.exports = (function(CreateHeaders,CreateResponse){
       {
         if(Send.error())
         {
-          _header.statusCode(Send.error());
+          _header.status(Send.error());
         }
         _header.contentType(config.sites[Send.host()].content_types[Send.ext()].type)
         .encoding(config.sites[Send.host()].content_types[Send.ext()].encoding)
@@ -25,7 +25,7 @@ module.exports = (function(CreateHeaders,CreateResponse){
       }
       else
       {
-        _header.statusCode(Send.error())
+        _header.status(Send.error())
         .contenType('text/html')
         .encoding('utf8');
       }
@@ -72,7 +72,7 @@ module.exports = (function(CreateHeaders,CreateResponse){
       {
         return _error;
       }
-      _error = !!s;
+      _error = (typeof s === 'number' ? s : _error);
       return Send;
     }
 

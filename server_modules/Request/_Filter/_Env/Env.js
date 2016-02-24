@@ -10,7 +10,7 @@ module.exports = (function(){
       {
         if(this.url().indexOf('/admin') === 0 && config.sites[Env.host()].app.admin)
         {
-          this.base("");
+          this.base("/admin");
         }
         else if(config.sites[Env.host()].app.env[Env.active()] !== undefined)
         {

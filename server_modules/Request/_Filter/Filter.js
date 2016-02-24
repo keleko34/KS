@@ -8,7 +8,7 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFile,CreateEr
   function CreateFilter()
   {
     var _type = 'env'
-      , _typeEnum = ['env','vhost','alias','file','directory','module']
+      , _typeEnum = ['env','vhost','alias','file','directory','module','error']
       , _pipe = function(){}
       , _error = function(){}
       , _then = function(){}
@@ -50,10 +50,12 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFile,CreateEr
           return true;
 
         case 'error':
-          Filter.error(CreateError()
-          .host(this.host())
-          .type(Filter.errorCode())
-          .call(this));
+          var _err = CreateError()
+          .type(Filter.statusCode())
+          .call(this);
+
+          Filter.error()
+          .call(this,_err,Filter.statusCode());
           return true;
       }
     }

@@ -11,6 +11,7 @@ module.exports = (function(){
         if(Vhost.request().indexOf('/admin') > -1 && config.sites[Vhost.host()].app.admin)
         {
           this.location(process.cwd());
+          this.url(this.url().replace('/admin','/').replace('//','/'));
         }
         else
         {

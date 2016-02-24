@@ -5,22 +5,12 @@ module.exports = (function(fs){
   {
     var _type = 0
       , _typeEnum = [404,500] //need to add more
-      , _host = ''
 
     function Error()
     {
-      this.url('/errors/'+Error.type()+'.html');
-      return fs.createReadStream('./sites/'+Error.host()+this.url());
-    }
-
-    Error.host = function(n)
-    {
-      if(n === undefined)
-      {
-        return _host;
-      }
-      _host = (typeof n === 'string' ? (n.indexOf(':') > -1 ? (n.substring(0,n.indexOf(':'))) : n) : _host);
-      return Error;
+      this.base('/errors');
+      this.url('/'+Error.type()+'.html');
+      return fs.createReadStream(this.location()+this.base()+this.url());
     }
 
     Error.type = function(t)

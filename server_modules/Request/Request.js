@@ -24,9 +24,9 @@ module.exports = (function(CreateFilter,CreateSend){
         , _vhost = CreateFilter().type('vhost').call(Request)
         , _error = function(stream,code){
               var _send = CreateSend()
-              .stream(true)
               .host(Request.host())
               .ext('html')
+              .stream(true)
               .content(stream)
               .error(code)
               .call(Request,res);
@@ -41,7 +41,6 @@ module.exports = (function(CreateFilter,CreateSend){
           }
         , _createError = function(err)
           {
-            console.log('err');
             CreateFilter().type('error').statusCode(err).error(_error).call(Request);
           }
 
