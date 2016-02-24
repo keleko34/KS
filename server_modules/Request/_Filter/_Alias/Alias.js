@@ -21,8 +21,6 @@ module.exports = (function(url,querystring){
           _qString[k] = _query[k];
           this.queryString(_qString);
         }).bind(this));
-
-        console.log(this.queryString());
         return true;
       }
       return false;

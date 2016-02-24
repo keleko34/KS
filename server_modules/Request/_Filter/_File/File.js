@@ -22,13 +22,10 @@ module.exports = (function(fs,path){
         var _currentDirectory = File.base();
         File.dir().split("/").forEach(function(d,i){
           _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+d;
-
           File.checkDirectory(_currentDirectory,function(){
-            console.log(_currentDirectory,' is ok');
             if(i === (File.dir().split("/").length-1))
             {
               File.exists((File.location()+File.base()+File.url()),function(){
-                 console.log((File.location()+File.base()+File.url()),' exists');
                 File.pipe()
                 .call(File,fs.createReadStream((File.location()+File.base()+File.url())));
 
@@ -44,10 +41,7 @@ module.exports = (function(fs,path){
       }
       else
       {
-        console.log('checking file: ',File.location(),File.base(),File.url());
         File.exists((File.location()+File.base()+File.url()),function(){
-           console.log((File.location()+File.base()+File.url()),' exists');
-
           File.pipe()
           .call(File,fs.createReadStream((File.location()+File.base()+File.url())),File.ext());
 
