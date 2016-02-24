@@ -1,14 +1,7 @@
 var filter_module = require('./_Filter/Filter')
   , send_module = require('./_Send/Send');
 
-/*
-var headers_module = require('./_Headers/Headers')
-  , vhost_module = require('./../Vhost/Vhost')
-  , error_module = require('./../Error/Error')
-  , file_module = require('./../File/File')
-  */
-
-module.exports = (function(CreateFilter,CreateSend/*CreateHeader,CreateVhost,CreateFile,CreateError*/){
+module.exports = (function(CreateFilter,CreateSend){
   function CreateRequest()
   {
     var _pipeOrder = ['file','module','directory','error']
@@ -185,4 +178,4 @@ module.exports = (function(CreateFilter,CreateSend/*CreateHeader,CreateVhost,Cre
     return Request;
   }
   return CreateRequest;
-}(filter_module,send_module/*headers_module,vhost_module,file_module,error_module*/));
+}(filter_module,send_module));

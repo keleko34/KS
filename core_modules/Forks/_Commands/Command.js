@@ -5,12 +5,11 @@ var http_module = require(server_modules_path+'/HTTP/HTTP')
   , https_module = require(server_modules_path+'/HTTPS/HTTPS')
   , https_server_module = require('https')
   , request_module = require(server_modules_path+'/Request/Request')
-  , response_module = require(server_modules_path+'/Response/Response')
   , path_module = require('path')
   , url_module = require('url')
   , query_module = require('querystring')
 
-module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,http,https,path,url,querystring){
+module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,url,querystring){
   function CreateForkCommands()
   {
     var _fork = function(){};
@@ -74,19 +73,6 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
             _request.config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
             .base((_request.config().app !== undefined) ? _request.config().app.base : '/app')
             .call(ForkCommands.fork().http(),res);
-
-
-
-            /*
-            .onResponse(function(content,headers,isStream){
-              CreateResponse()
-              .content(content)
-              .headers(headers)
-              .type((isStream ? 'stream' : 'content'))
-              .call(ForkCommands.fork().http(),res);
-            })
-            .call(ForkCommands.fork().http(),req);
-            */
         }
 
         ForkCommands.fork()
@@ -118,4 +104,4 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateResponse,h
     return ForkCommands;
   }
   return CreateForkCommands;
-}(http_module,https_module,request_module,response_module,http_server_module,https_server_module,path_module,url_module,query_module));
+}(http_module,https_module,request_module,http_server_module,https_server_module,path_module,url_module,query_module));
