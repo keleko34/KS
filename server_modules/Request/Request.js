@@ -20,6 +20,7 @@ module.exports = (function(CreateFilter,CreateSend){
       , _protocol = 'http'
       , _protocolEnum = ['http','https']
       , _port = 8080
+      , _throwError = false
 
     function Request(res)
     {
@@ -44,6 +45,7 @@ module.exports = (function(CreateFilter,CreateSend){
                 .location(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url())
                 .ext(ext)
                 .stream(true)
+                .error(200)
                 .content(stream)
                 .call(Request,res);
           }
@@ -51,6 +53,11 @@ module.exports = (function(CreateFilter,CreateSend){
           {
             CreateFilter().type('error').statusCode(err).error(_error).call(Request);
           }
+
+      if(Request.throwError())
+      {
+        _createError(Request.throwError());
+      }
 
       if(!_vhost)
       {
@@ -214,6 +221,16 @@ module.exports = (function(CreateFilter,CreateSend){
         return _parsedUrl;
       }
       _parsedUrl = (typeof u === 'object' && u.pathname !== undefined ? u : _parsedUrl);
+      return Request;
+    }
+
+    Request.throwError = function(e)
+    {
+      if(e === undefined)
+      {
+        return _throwError;
+      }
+      _throwError = !!e;
       return Request;
     }
 

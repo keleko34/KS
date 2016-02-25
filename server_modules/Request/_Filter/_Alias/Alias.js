@@ -9,19 +9,40 @@ module.exports = (function(url,querystring){
 
     function Alias()
     {
-      if(config.sites[Alias.host()] !== undefined && config.sites[Alias.host()].alias[Alias.url()] !== undefined)
+      if(config.sites[Alias.host()] !== undefined && config.sites[Alias.host()].alias !== undefined)
       {
-        var _aliases = config.sites[Alias.host()].alias
-          , _alias = ((_aliases[Alias.url()].indexOf('/') !== 0 ? '/' : '')+_aliases[Alias.url()])
-          , _query = querystring.parse(decodeURI(url.parse(_alias).query));
+        var found = false
+          , aliasKeys = Object.keys(config.sites[Alias.host()].alias)
+          , x = 0
+          , filterAlias = (function(aliasReturn,urlToReplace)
+            {
+              Object.keys(querystring.parse(url.parse(aliasReturn).query)).forEach((function(k,i){
+                var qString = this.queryString();
+                qString[k] = querystring.parse(url.parse(aliasReturn).query)[k];
+                this.queryString(qString);
+              }).bind(this));
+              this.url(this.url().replace(urlToReplace,decodeURI(url.parse(aliasReturn).pathname)));
+            }).bind(this)
 
-        this.url(decodeURI(url.parse(_alias).pathname));
-        Object.keys(_query).forEach((function(k,i){
-          var _qString = this.queryString();
-          _qString[k] = _query[k];
-          this.queryString(_qString);
-        }).bind(this));
-        return true;
+        outer:for(x;x<aliasKeys.length;x+=1)
+        {
+          if(aliasKeys[x].indexOf('*') < 0)
+          {
+            if(this.url() === aliasKeys[x])
+            {
+              filterAlias(config.sites[Alias.host()].alias[aliasKeys[x]],aliasKeys[x]);
+              found = true;
+              break outer;
+            }
+          }
+          else if(this.url().indexOf(aliasKeys[x].replace('*','')) === 0)
+          {
+            filterAlias(config.sites[Alias.host()].alias[aliasKeys[x]],aliasKeys[x].replace('*',''));
+            found = true;
+            break outer;
+          }
+        }
+        return found;
       }
       return false;
     }

@@ -30,7 +30,7 @@ module.exports = (function(CreateHeader,CreateResponse){
         .contentType('text/html')
         .encoding('utf8');
       }
-      console.log(Send.location());
+      console.log("Sending: ",Send.location());
       _header.location((Send.location() !== undefined ? Send.location()+"/cool" : ''));
       CreateResponse()
       .stream(Send.stream())

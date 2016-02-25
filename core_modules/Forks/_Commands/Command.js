@@ -62,28 +62,51 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
 
         var serverRequest = function(req,res){
 
-          console.log(req.headers.referer, req.url);
+          var _error = 0
+            , _headers = (req.headers !== undefined ? req.headers : {})
+            , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
+            , _refererPath = (_referer.length > 0 ? decodeURI(url.parse(_referer).path) : "")
+            , _host = (_referer.length > 0 ? url.parse(_referer).hostname :
+                      (_headers.host !== undefined ?
+                      (_headers.host.substring(0,
+                      (_headers.host.indexOf(":") > -1 ? _headers.host.indexOf(":") : _headers.host.length))
+                      ) : ("")))
+            , _error = (config.sites[_host] === undefined ? 1000 : 0)
+            , _config = (!_error ? config.sites[_host] : {})
+            , _appConfig = (_config.app !== undefined ? _config.app : {})
+            , _envConfig = (_appConfig.env !== undefined ? _appConfig.env : {})
+            , _port = (config.server.http !== undefined ? config.server.http.port : 8080)
+            , _url = decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)
+            , _error = (_refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 0)
+            , _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false)
+            , _url = (_refererPath.length > 0 ? (_urlHasEnv ? _url : (_refererPath+_url)) : _url)
+            , _ext = path.parse(_url).ext.replace('.','')
+            , _dir = path.parse(_url).dir
+            , _filename = (path.parse(_url).base)
+            , _query = (req.query !== undefined ? req.query : {})
+            , _queryString = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : "")+decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
+            , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
+
+            console.log(_url,_host,_error);
 
             var _request = CreateRequest()
-            .url(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname))
-            .ext(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).ext.replace('.',''))
-            .host((req.headers !== undefined ? (req.headers.host !== undefined ? req.headers.host : 'localhost') : 'localhost'))
-            .dir(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).dir)
-            .fileName(path.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)).base)
-            .query((req.query !== undefined) ? req.query : {})
-            .queryString(querystring.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').query)))
-            .parsedUrl(url.parse(decodeURI(req.url !== undefined ? req.url : '/')))
-            .path(path.parse(url.parse(decodeURI(req.url !== undefined ? req.url : '/')).pathname))
-            .ip((req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress))
-            .port((config.server.http !== undefined ? config.server.http.port : 8080))
+            .url(_url)
+            .ext(_ext)
+            .host(_host)
+            .dir(_dir)
+            .fileName(_filename)
+            .query(_query)
+            .queryString(_queryString)
+            .parsedUrl(url.parse(req.url !== undefined ? req.url : '/'))
+            .path(path.parse(_url))
+            .ip(_ip)
+            .port(_port)
+            .config(_config)
+            .base(_appConfig.base !== undefined ? _appConfig.base : '/app')
             .protocol('http')
+            .throwError(_error)
+            .call(ForkCommands.fork().http(),res)
 
-            var _referer = (req.headers.referer !== undefined ? (req.headers.referer.substring(req.headers.referer.indexOf(req.headers.host)+req.headers.host.length,req.headers.referer.length)) : undefined)
-
-            _request.url((_referer !== undefined ? _referer+_request.url() : _request.url()))
-            .config((config.sites[_request.host()] !== undefined ? config.sites[_request.host()] : {}))
-            .base((_request.config().app !== undefined) ? _request.config().app.base : '/app')
-            .call(ForkCommands.fork().http(),res);
         }
 
         ForkCommands.fork()
