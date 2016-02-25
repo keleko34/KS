@@ -61,8 +61,6 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     {
 
         var _serverRequest = function(req,res){
-
-          console.log(req.url);
           req.on('data',function(){}); //forces to stream flow mode
 
           var _error = 200
