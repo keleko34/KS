@@ -17,40 +17,50 @@ module.exports = (function(fs,path){
 
     function File()
     {
-      var split = (File.url().split("/"));
+      var split = (File.url().split("/"))
+        , req = this;
       split.map(function(d,i){if(d.length < 1){ split.splice(i,1);}});
       if(split.length > 1)
       {
-        var _currentDirectory = File.base();
-        split.forEach(function(d,i){
-          _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+d;
-          File.checkDirectory(_currentDirectory,function(){
-            if(i === (split.length-1))
+        var _currentDirectory = File.base()
+          , x = 0
+          , _foundError = function(err)
             {
-              File.exists((File.location()+File.base()+File.url()),function(){
-                File.pipe()
-                .call(File,fs.createReadStream((File.location()+File.base()+File.url())));
+              File.then().call(File,err);
+              File.error().call(File,err);
+            }
+          , _nextCheck = function()
+            {
+              x += 1;
+              if(x >= (split.length-1))
+              {
+                File.exists((File.location()+File.base()+File.url()),function(){
+                  File.then()
+                  .call(File);
 
-                File.then()
-                .call(File);
+                  File.pipe()
+                  .call(File,fs.createReadStream((File.location()+File.base()+File.url())));
 
-              },File.error());
+                },_foundError);
+                return true;
+              }
+              _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+split[x];
+              File.checkDirectory(_currentDirectory,_nextCheck,_foundError);
               return true;
             }
-          },File.error())
-          return true;
-        });
+        _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+split[x];
+        File.checkDirectory(_currentDirectory,_nextCheck,_foundError);
       }
       else
       {
         File.exists((File.location()+File.base()+File.url()),function(){
-          File.pipe()
-          .call(File,fs.createReadStream((File.location()+File.base()+File.url())),File.ext());
-
           File.then()
           .call(File);
 
-        },File.error());
+          File.pipe()
+          .call(File,fs.createReadStream((File.location()+File.base()+File.url())),File.ext());
+
+        },function(err){File.then().call(File,err);File.error().call(File,err);});
       }
     }
 
@@ -162,7 +172,7 @@ module.exports = (function(fs,path){
         {
           err(404);
         }
-      })
+      });
     }
 
     File.exists = function(f,cb,err)

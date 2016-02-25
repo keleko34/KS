@@ -56,8 +56,7 @@ module.exports = (function(CreateFilter,CreateSend){
       {
         _createError(Request.throwError());
       }
-
-      if(!_vhost)
+      else if(!_vhost)
       {
         _createError(1000);
       }
