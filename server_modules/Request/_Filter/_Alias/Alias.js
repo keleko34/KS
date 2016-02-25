@@ -22,6 +22,7 @@ module.exports = (function(url,querystring){
                 this.queryString(qString);
               }).bind(this));
               this.url(this.url().replace(urlToReplace,decodeURI(url.parse(aliasReturn).pathname)));
+                       this.url(this.url().replace(/\/\//g,"/"));
             }).bind(this)
 
         outer:for(x;x<aliasKeys.length;x+=1)

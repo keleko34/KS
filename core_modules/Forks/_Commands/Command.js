@@ -43,7 +43,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
         process.send({command:'echo',data:{message:'Started: Fork:   '+data.id+' PID: '+process.pid}});
         process.once('uncaughtException',ForkCommands.fork().exception());
         process.on('message',ForkCommands.fork().comm());
-        process.on('error',function(err){
+        process.once('error',function(err){
           console.error('ERR,',err,' From Fork '+ForkCommands.fork().id());
           console.error("ERR Stack",err.stack);
         })
@@ -60,19 +60,18 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
 
-        var serverRequest = function(req,res){
-          console.log(req.url)
+        var _serverRequest = function(req,res){
           var _error = 200
             , _headers = (req.headers !== undefined ? req.headers : {})
             , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
-            , _refererPath = (_referer.length > 0 ? (decodeURI(url.parse(_referer).path) !== "/" ? decodeURI(url.parse(_referer).path) : "")  : "")
+            , _refererPath = (_referer.length > 0 ? (decodeURI(url.parse(_referer).pathname) !== "/" ? decodeURI(url.parse(_referer).pathname) : "")  : "")
             , _host = (_referer.length > 0 ? url.parse(_referer).hostname :
                       (_headers.host !== undefined ?
                       (_headers.host.substring(0,
                       (_headers.host.indexOf(":") > -1 ? _headers.host.indexOf(":") : _headers.host.length))
                       ) : ("")))
             , _error = (config.sites[_host] === undefined ? 1000 : 200)
-            , _config = (_error !== 200 ? config.sites[_host] : {})
+            , _config = (_error === 200 ? config.sites[_host] : {})
             , _appConfig = (_config.app !== undefined ? _config.app : {})
             , _envConfig = (_appConfig.env !== undefined ? _appConfig.env : {})
             , _port = (config.server.http !== undefined ? config.server.http.port : 8080)
@@ -86,8 +85,6 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
             , _query = (req.query !== undefined ? req.query : {})
             , _queryString = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : "")+decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
             , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
-
-            console.log(_url,_host,_error);
 
             var _request = CreateRequest()
             .url(_url)
@@ -105,13 +102,17 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
             .base(_appConfig.base !== undefined ? _appConfig.base : '/app')
             .protocol('http')
             .throwError(_error)
-            .call(ForkCommands.fork().http(),res)
-
+            .call(ForkCommands.fork().http(),res);
         }
+          , _server = http.createServer(_serverRequest)
+
+        _server.setTimeout((1000*60*2),function(s){
+          s.abort();
+        })
 
         ForkCommands.fork()
         .http(CreateHTTP()
-          .server(http.createServer(serverRequest))
+          .server(_server)
           .port((config.server.http !== undefined ? config.server.http.port : 8080))
           .status('online'))
           .http()

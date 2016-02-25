@@ -29,7 +29,6 @@ module.exports = (function(CreateFilter,CreateSend){
         , _vhost = CreateFilter().type('vhost').call(Request)
         , _firewall = (_vhost ? (config.sites[Request.host()].app.firewall ? CreateFilter().type('firewall').call(Request) : true) : false)
         , _error = function(stream,code){
-          //console.log(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url());
               var _send = CreateSend()
               .host(Request.host())
               .ext('html')
@@ -39,7 +38,6 @@ module.exports = (function(CreateFilter,CreateSend){
               .call(Request,res);
           }
         , _pipe = function(stream,ext){
-          //console.log(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url());
                 var _send = CreateSend()
                 .host(Request.host())
                 .location(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url())

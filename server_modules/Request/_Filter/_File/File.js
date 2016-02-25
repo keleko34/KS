@@ -17,20 +17,17 @@ module.exports = (function(fs,path){
 
     function File()
     {
-      if(File.dir().length > 1)
+      var split = (File.url().split("/"));
+      split.map(function(d,i){if(d.length < 1){ split.splice(i,1);}});
+      if(split.length > 1)
       {
-        console.log(File.base());
         var _currentDirectory = File.base();
-        File.dir().split("/").forEach(function(d,i){
+        split.forEach(function(d,i){
           _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+d;
-          console.log("checking: ",_currentDirectory);
           File.checkDirectory(_currentDirectory,function(){
-            console.log("found dir: ",_currentDirectory);
-            if(i === (File.dir().split("/").length-1))
+            if(i === (split.length-1))
             {
-              console.log(File.location(),File.base(),File.url());
               File.exists((File.location()+File.base()+File.url()),function(){
-                console.log("found file: ",File.location(),File.base(),File.url());
                 File.pipe()
                 .call(File,fs.createReadStream((File.location()+File.base()+File.url())));
 
@@ -46,9 +43,7 @@ module.exports = (function(fs,path){
       }
       else
       {
-        console.log(File.location(),File.base(),File.url());
         File.exists((File.location()+File.base()+File.url()),function(){
-          console.log("found file: ",File.location(),File.base(),File.url());
           File.pipe()
           .call(File,fs.createReadStream((File.location()+File.base()+File.url())),File.ext());
 

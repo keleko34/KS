@@ -3,6 +3,7 @@ module.exports = (function(){
   {
     var _host = ''
       , _admin = true
+      , _request = ''
 
     function Vhost()
     {
