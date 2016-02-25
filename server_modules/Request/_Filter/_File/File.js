@@ -24,6 +24,7 @@ module.exports = (function(fs,path){
         var _currentDirectory = File.base();
         split.forEach(function(d,i){
           _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+d;
+          console.log(d,_currentDirectory);
           File.checkDirectory(_currentDirectory,function(){
             if(i === (split.length-1))
             {

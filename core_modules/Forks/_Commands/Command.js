@@ -61,6 +61,10 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     {
 
         var _serverRequest = function(req,res){
+
+          console.log(req.url);
+          req.on('data',function(){}); //forces to stream flow mode
+
           var _error = 200
             , _headers = (req.headers !== undefined ? req.headers : {})
             , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
@@ -106,8 +110,8 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
         }
           , _server = http.createServer(_serverRequest)
 
-        _server.setTimeout((1000*60*2),function(s){
-          s.abort();
+        _server.setTimeout((1000*60*1),function(s){
+          s.end();
         })
 
         ForkCommands.fork()

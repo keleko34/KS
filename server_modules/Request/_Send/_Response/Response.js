@@ -18,6 +18,8 @@ module.exports = (function(){
       if(Response.stream())
       {
         Response.content().pipe(res);
+        Response.content().on('data',function(){}); //forces to stream flow mode
+        Response.content().on('end',function(){res.end();}) //ends res
       }
       else
       {
