@@ -1,3 +1,3 @@
 {
-  "/admin*":{"type":"deny","ip":[""]}
+  "/admin/init.js":{"type":"deny","ip":["localhost"]}
 }

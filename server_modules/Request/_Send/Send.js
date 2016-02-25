@@ -16,11 +16,8 @@ module.exports = (function(CreateHeader,CreateResponse){
       var _header = CreateHeader();
       if(config.sites[Send.host()] !== undefined && config.sites[Send.host()].content_types[Send.ext()] !== undefined)
       {
-        if(Send.error())
-        {
-          _header.status(Send.error());
-        }
-        _header.contentType(config.sites[Send.host()].content_types[Send.ext()].type)
+        _header.status(Send.error())
+        .contentType(config.sites[Send.host()].content_types[Send.ext()].type)
         .encoding(config.sites[Send.host()].content_types[Send.ext()].encoding)
         .cached(config.sites[Send.host()].app.cached);
       }
