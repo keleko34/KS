@@ -20,7 +20,7 @@ module.exports = (function(CreateFilter,CreateSend){
       , _protocol = 'http'
       , _protocolEnum = ['http','https']
       , _port = 8080
-      , _throwError = false
+      , _throwError = 200
 
     function Request(res)
     {
@@ -54,7 +54,7 @@ module.exports = (function(CreateFilter,CreateSend){
             CreateFilter().type('error').statusCode(err).error(_error).call(Request);
           }
 
-      if(Request.throwError())
+      if(Request.throwError() !== 200)
       {
         _createError(Request.throwError());
       }
@@ -230,7 +230,7 @@ module.exports = (function(CreateFilter,CreateSend){
       {
         return _throwError;
       }
-      _throwError = !!e;
+      _throwError = (typeof e === 'number' ? e : _throwError);
       return Request;
     }
 

@@ -13,6 +13,7 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
       , _pipe = function(){}
       , _error = function(){}
       , _then = function(){}
+      , _statusCode = 200
 
     function Filter()
     {

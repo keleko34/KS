@@ -61,23 +61,23 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     {
 
         var serverRequest = function(req,res){
-
-          var _error = 0
+          console.log(req.url)
+          var _error = 200
             , _headers = (req.headers !== undefined ? req.headers : {})
             , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
-            , _refererPath = (_referer.length > 0 ? decodeURI(url.parse(_referer).path) : "")
+            , _refererPath = (_referer.length > 0 ? (decodeURI(url.parse(_referer).path) !== "/" ? decodeURI(url.parse(_referer).path) : "")  : "")
             , _host = (_referer.length > 0 ? url.parse(_referer).hostname :
                       (_headers.host !== undefined ?
                       (_headers.host.substring(0,
                       (_headers.host.indexOf(":") > -1 ? _headers.host.indexOf(":") : _headers.host.length))
                       ) : ("")))
-            , _error = (config.sites[_host] === undefined ? 1000 : 0)
-            , _config = (!_error ? config.sites[_host] : {})
+            , _error = (config.sites[_host] === undefined ? 1000 : 200)
+            , _config = (_error !== 200 ? config.sites[_host] : {})
             , _appConfig = (_config.app !== undefined ? _config.app : {})
             , _envConfig = (_appConfig.env !== undefined ? _appConfig.env : {})
             , _port = (config.server.http !== undefined ? config.server.http.port : 8080)
             , _url = decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)
-            , _error = (_refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 0)
+            , _error = (_refererPath.length > 0 && _refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 200)
             , _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false)
             , _url = (_refererPath.length > 0 ? (_urlHasEnv ? _url : (_refererPath+_url)) : _url)
             , _ext = path.parse(_url).ext.replace('.','')
