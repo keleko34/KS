@@ -13,7 +13,8 @@ var http_module = require(server_modules_path+'/HTTP/HTTP')
 module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,https,path,url,querystring){
   function CreateForkCommands()
   {
-    var _fork = function(){};
+    var _fork = function(){}
+      , _logger = CreateLog()
 
     function ForkCommands()
     {
@@ -104,7 +105,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
 
             if(_appConfig.logging !== undefined && _appConfig.logging && _error === 200 && _referer.length < 1)
             {
-              CreateLog()
+              _logger
               .host(_request.host())
               .url(_request.base()+_request.url())
               .ip(_request.ip())
@@ -137,7 +138,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
       {
         if(config.server.logging)
         {
-          CreateLog()
+          _logger
           .type('error')
           .error(data.err + " \n " + (data.stack.substring(0,(data.stack.indexOf("at",(data.stack.indexOf("at")+1))))) + " \n ")
           .call(data);

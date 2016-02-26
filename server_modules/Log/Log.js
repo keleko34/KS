@@ -11,6 +11,7 @@ module.exports = (function(CreateRequestLog,CreateErrorLog,fs){
       , _ip = ''
       , _url = ''
       , _error = ''
+      , _fileList = {}
 
     function Log()
     {
@@ -19,9 +20,15 @@ module.exports = (function(CreateRequestLog,CreateErrorLog,fs){
         , _message = ''
         , _writeToFile = function()
           {
-            var _writable = fs.createWriteStream(_logFile,{flags:'a+'});
-            _writable.write("\n"+_message);
-            _writable.end();
+            if(Log.fileList(_logFile) === undefined)
+            {
+              Log.fileList(_logFile,fs.createWriteStream(_logFile,{flags:'a+',autoClose:false}));
+               Log.fileList(_logFile).on('error',function(){
+                 Log.fileList(_logFile).end();
+                 Log.fileList(_logFile,fs.createWriteStream(_logFile,{flags:'a+',autoClose:false}));
+               });
+            }
+            Log.fileList(_logFile).write("\n"+_message);
           };
       switch(Log.type())
       {
@@ -90,6 +97,23 @@ module.exports = (function(CreateRequestLog,CreateErrorLog,fs){
         return _error;
       }
       _error = (typeof err === 'string' ? err : _error);
+      return Log;
+    }
+    
+    Log.fileList = function(n,f)
+    {
+      if(n === undefined)
+      {
+        return _fileList;
+      }
+      if(f === undefined && typeof n === 'string')
+      {
+        return _fileList[n];
+      }
+      if(typeof n === 'string' && typeof f === 'object' && f.pipe !== undefined)
+      {
+        _fileList[n] = f;
+      }
       return Log;
     }
 
