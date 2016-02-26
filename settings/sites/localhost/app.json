@@ -3,6 +3,7 @@
   "admin":true,
   "cached":false,
   "firewall":true,
+  "logging":true,
   "env":{
     "dev":"/dev",
     "qa":"/qa"

@@ -17,14 +17,12 @@ module.exports = (function(CreateComm,CreateForkCommands){
     {
       Fork.comm()
       .type('fork')
-      .channels('master',function(message){process.send(message)})
       .commands()
       .list(CreateForkCommands().fork(Fork)());
 
       Fork.comm().commands().list('fork_start')({id:Fork.id(),status:Fork.status()});
 
       Fork.comm().commands().list('server_start')({id:Fork.id(),status:Fork.status()});
-
     }
 
     Fork.id = function(i)
@@ -102,6 +100,7 @@ module.exports = (function(CreateComm,CreateForkCommands){
       return function(err){
         console.error('ERR: \033[31m',err.stack,"\033[37m");
         //send error as well, later for modules
+        Fork.comm().commands().list('log_error')({err:err.message,stack:err.stack});
         process.send({command:'crash',data:{type:'fork',id:Fork.id()}});
       }
     }

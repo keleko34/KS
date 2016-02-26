@@ -80,7 +80,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
               env:{
                 id:Master.threadCrash(),
                 controller:'thread',
-                site:JSON.stringify(config.site[Object.keys(config.site)[Master.threadCrash()]])
+                site:JSON.stringify(config.sites[Object.keys(config.sites)[Master.threadCrash()]])
               }
             }))
             .status('online'));
@@ -92,8 +92,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       /* master comm sets up the master communication endpoint, setting up the channels is for relaying route message from others, so as an example if a child process sends a message and wants to be routed to a fork the channels is what relays the message, the commands are the list of message commands that fire when a command param on the message is included. anything coming from child process though will have restricted access to commands in fork and master. */
       Master.comm()
       .type('master')
-      .channels('fork',function(msg){Master.forks().forEach(function(d,i){d.send(msg);});})
-      .channels('thread',function(msg){Master.forks().forEach(function(d,i){d.send(msg);});})
+      .channels('fork',function(msg){Master.forks().forEach(function(d,i){d.cluster().send(msg);});})
+      .channels('thread',function(msg){Master.threads().forEach(function(d,i){d.fork().send(msg);});})
       .commands()
       .list(CreateMasterCommands().master(Master)());
     }

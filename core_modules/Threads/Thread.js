@@ -22,7 +22,6 @@ var thread = (function(CreateComm,CreateThreadCommands){
         /* Setup Events for the comm */
         Thread.comm()
         .type('thread')
-        .channels('master',function(message){process.send(message)})
         .commands()
         .list(CreateThreadCommands().thread(Thread)())
         .list('thread_start')({id:Thread.id(),status:Thread.status(),modules:Thread.modules(),base:Thread.base()});
@@ -131,6 +130,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
       return function(err){
         console.error('ERR: \033[31m',err.stack,"\033[37m");
         //send error as well, later for modules
+        process.send({command:'log_error',route:'fork',data:{err:err.message,stack:err.stack}});
         process.send({command:'crash',data:{type:'thread',id:Thread.id()}});
       }
     }
@@ -146,7 +146,7 @@ if(process.env.controller !== undefined)
   .id(process.env.id)
   .controller(process.env.controller)
   .modules(JSON.parse(process.env.site).site_modules.modules)
-  .base(JSON.parse(process.env.site).site_modules.base)()
+  .call(process)
 }
 else
 {

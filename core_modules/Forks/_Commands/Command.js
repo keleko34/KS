@@ -5,11 +5,12 @@ var http_module = require(server_modules_path+'/HTTP/HTTP')
   , https_module = require(server_modules_path+'/HTTPS/HTTPS')
   , https_server_module = require('https')
   , request_module = require(server_modules_path+'/Request/Request')
+  , log_module = require(server_modules_path+'/Log/Log')
   , path_module = require('path')
   , url_module = require('url')
   , query_module = require('querystring')
 
-module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,url,querystring){
+module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,https,path,url,querystring){
   function CreateForkCommands()
   {
     var _fork = function(){};
@@ -20,11 +21,12 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
         fork_start:ForkCommands.fork_start,
         server_start:ForkCommands.server_start,
         server_stop:ForkCommands.server_stop,
+        log_error:ForkCommands.log_error,
         echo:ForkCommands.echo
       }
     }
 
-   ForkCommands.fork = function(f)
+    ForkCommands.fork = function(f)
     {
       if(f === undefined)
       {
@@ -35,28 +37,24 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     }
 
     /* Method Commands */
-   ForkCommands.fork_start = function(data)
-   {
+    ForkCommands.fork_start = function(data)
+    {
      /* attach process events */
       if(ForkCommands.fork().status() !== 'online')
       {
         process.send({command:'echo',data:{message:'Started: Fork:   '+data.id+' PID: '+process.pid}});
         process.once('uncaughtException',ForkCommands.fork().exception());
         process.on('message',ForkCommands.fork().comm());
-        process.once('error',function(err){
-          console.error('ERR,',err,' From Fork '+ForkCommands.fork().id());
-          console.error("ERR Stack",err.stack);
-        })
+        process.once('error',ForkCommands.fork().exception())
         process.once('disconnect',function(){
           process.kill(process.pid);
         });
-        process.commands = ForkCommands.fork().comm().commands();
         ForkCommands.fork().status('online');
       }
    }
 
-  ForkCommands.server_start = function(data)
-  {
+    ForkCommands.server_start = function(data)
+    {
     if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
         var _serverRequest = function(req,res){
@@ -100,8 +98,20 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
             .config(_config)
             .base(_appConfig.base !== undefined ? _appConfig.base : '/app')
             .protocol('http')
-            .throwError(_error)
-            .call(ForkCommands.fork().http(),res);
+            .throwError(_error);
+
+            _request.call(ForkCommands.fork().http(),res);
+
+            if(_appConfig.logging !== undefined && _appConfig.logging && _error === 200 && _referer.length < 1)
+            {
+              CreateLog()
+              .host(_request.host())
+              .url(_request.base()+_request.url())
+              .ip(_request.ip())
+              .type('request')
+              .error(_error)
+              .call(_request);
+            }
         }
           , _server = http.createServer(_serverRequest)
 
@@ -121,23 +131,36 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,http,https,path,
     }
   }
 
-  ForkCommands.server_stop = function()
-  {
-    ForkCommands.fork()
-    .http()
-    .status('offline')
-    .call(ForkCommands.fork().http());
-  }
-
-  ForkCommands.echo = function(data)
-  {
-    if(data.message !== undefined)
+    ForkCommands.log_error = function(data)
     {
-      console.log('From thread '+ForkCommands.fork().id()+': '+data.message);
+      if(config !== undefined && config.server !== undefined && data.err !== undefined && data.stack !== undefined)
+      {
+        if(config.server.logging)
+        {
+          CreateLog()
+          .type('error')
+          .error(data.err + " \n " + (data.stack.substring(0,(data.stack.indexOf("at",(data.stack.indexOf("at")+1))))) + " \n ")
+          .call(data);
+        }
+      }
     }
-  }
 
+    ForkCommands.server_stop = function()
+    {
+      ForkCommands.fork()
+      .http()
+      .status('offline')
+      .call(ForkCommands.fork().http());
+    }
+
+    ForkCommands.echo = function(data)
+    {
+      if(data.message !== undefined)
+      {
+        console.log('From thread '+ForkCommands.fork().id()+': '+data.message);
+      }
+    }
     return ForkCommands;
   }
   return CreateForkCommands;
-}(http_module,https_module,request_module,http_server_module,https_server_module,path_module,url_module,query_module));
+}(http_module,https_module,request_module,log_module,http_server_module,https_server_module,path_module,url_module,query_module));

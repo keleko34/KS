@@ -30,14 +30,10 @@ module.exports = (function(){
         process.send({command:'echo',data:{message:'Started: Thread: '+data.id+' PID: '+process.pid}});
         process.once('uncaughtException',ThreadCommands.thread().exception());
         process.on('message',ThreadCommands.thread().comm());
-        process.on('error',function(err){
-          console.error('ERR,',err,' From Thread '+ThreadCommands.thread().id());
-          console.error("ERR Stack",err.stack);
-        })
+        process.on('error',ThreadCommands.thread().exception())
         process.once('disconnect',function(){
           process.kill(process.pid);
         });
-        process.commands = ThreadCommands.thread().comm().commands();
         ThreadCommands.thread().status('online');
       }
     }
