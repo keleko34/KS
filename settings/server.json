@@ -4,7 +4,7 @@
       "http":false,
       "websockets":false
   },
-  "logging":true,
+  "logging":false,
   "directories":false,
   "caching":false,
   "email":"false",
