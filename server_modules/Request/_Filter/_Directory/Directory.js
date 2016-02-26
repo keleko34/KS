@@ -5,7 +5,21 @@ module.exports = (function(fs){
   {
     function Directory()
     {
+        var split = (Directory.url().split("/"))
+        , req = this;
+        split.map(function(d,i){if(d.length < 1){ split.splice(i,1);}});
+      if(split.length > 1)
+      {
 
+      }
+      else
+      {
+        Directory.exists(Directory.url(),function(){
+
+        },function(err){
+
+        })
+      }
     }
 
     Directory.host = function(h)
