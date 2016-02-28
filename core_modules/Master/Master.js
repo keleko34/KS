@@ -26,6 +26,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       {
         for(var x=Master.forks().length;x<Master.forkCount();x+=1)
         {
+          console.log(process.env.debug);
           /* we have a new fork to create, we assign an id and spawn a cluster fork, this works on the same thread as the master but on a different process */
           Master.forks(x,CreateFork()
             .id(x)

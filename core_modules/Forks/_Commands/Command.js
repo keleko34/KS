@@ -97,7 +97,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             , _query = (req.query !== undefined ? req.query : {})
             , _queryString = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : "")+decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
             , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
-
+            console.log(process.env.debug,typeof process.env.debug);
             if(process.env.debug !== "false")
             {
               console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Host: ",_host," ip: ",_ip," Error: ",_error);
