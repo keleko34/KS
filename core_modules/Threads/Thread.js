@@ -18,7 +18,6 @@ var thread = (function(CreateComm,CreateThreadCommands){
     function Thread()
     {
       if(Thread.controller() === 'thread'){
-
         /* Setup Events for the comm */
         Thread.comm()
         .type('thread')
@@ -128,10 +127,12 @@ var thread = (function(CreateComm,CreateThreadCommands){
     Thread.exception = function()
     {
       return function(err){
-        console.error('ERR: \033[31m',err.stack,"\033[37m");
-        //send error as well, later for modules
         process.send({command:'log_error',route:'fork',data:{err:err.message,stack:err.stack}});
         process.send({command:'crash',data:{type:'thread',id:Thread.id()}});
+        if(process.env.debug !== "false")
+        {
+          console.error('ERR: \033[31m',err.stack,"\033[37m");
+        }
       }
     }
 

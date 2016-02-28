@@ -6,7 +6,6 @@ module.exports = (function(fs,path){
   {
     var _ext = ''
       , _url = ''
-      , _dir = ''
       , _exists = false
       , _base = ''
       , _host = ''
@@ -39,17 +38,17 @@ module.exports = (function(fs,path){
                   .call(File);
 
                   File.pipe()
-                  .call(File,fs.createReadStream((File.location()+File.base()+File.url())));
+                  .call(File,fs.createReadStream((File.location()+File.base()+File.url())),File.ext());
 
                 },_foundError);
                 return true;
               }
               _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+split[x];
-              File.checkDirectory(_currentDirectory,_nextCheck,_foundError);
+              File.checkDirectory(File.location()+_currentDirectory,_nextCheck,_foundError);
               return true;
             }
         _currentDirectory = _currentDirectory+(_currentDirectory.lastIndexOf('/') !== (_currentDirectory.length-1) ? '/' : '')+split[x];
-        File.checkDirectory(_currentDirectory,_nextCheck,_foundError);
+        File.checkDirectory(File.location()+_currentDirectory,_nextCheck,_foundError);
       }
       else
       {
@@ -104,16 +103,6 @@ module.exports = (function(fs,path){
       return File;
     }
 
-    File.dir = function(d)
-    {
-      if(d === undefined)
-      {
-        return _dir;
-      }
-      _dir = (typeof d === 'string' && d.indexOf('/') > -1 ? d : _dir);
-      return File;
-    }
-
     File.location = function(l)
     {
       if(l === undefined)
@@ -165,11 +154,19 @@ module.exports = (function(fs,path){
           }
           else
           {
+            if(process.env.debug !== "false")
+            {
+              console.error('Blocked Url: File Filter: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
+            }
             err(500);
           }
         }
         else
         {
+          if(process.env.debug !== "false")
+          {
+            console.error('Bad directory: File Filter: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
+          }
           err(404);
         }
       });
@@ -186,11 +183,19 @@ module.exports = (function(fs,path){
           }
           else
           {
+            if(process.env.debug !== "false")
+            {
+              console.error('Is Not File: File Filter: \033[31m',File.host(),File.base(),File.url(),"\033[37m");
+            }
             err(404);
           }
         }
         else
         {
+          if(process.env.debug !== "false")
+          {
+            console.error('File does not exist: File Filter: \033[31m',File.host(),File.base(),File.url(),"\033[37m");
+          }
           err(404);
         }
       });

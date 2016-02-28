@@ -54,19 +54,43 @@ module.exports = (function(CreateFilter,CreateSend){
 
       if(Request.throwError() !== 200)
       {
+        if(process.env.debug !== "false")
+        {
+          console.error('Throwing Request Error: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
+        }
         _createError(Request.throwError());
       }
       else if(!_vhost)
       {
+        if(process.env.debug !== "false")
+        {
+          console.error('VHOST not found: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
+        }
         _createError(1000);
       }
       else if(!_firewall)
       {
+        if(process.env.debug !== "false")
+        {
+          console.error('Blocked By Firewall: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
+        }
         _createError(500);
       }
       else
       {
-        CreateFilter().type('file').pipe(_pipe).error(_createError).call(Request);
+        CreateFilter().type('file').pipe(_pipe).then(function(err){
+          if(err !== undefined)
+          {
+            if(err === 404 && Request.url().indexOf(".") < 0)
+            {
+              CreateFilter().type('directory').pipe(_pipe).error(_createError).call(Request);
+            }
+            else
+            {
+              _createError(err);
+            }
+          }
+        }).call(Request);
       }
     }
 

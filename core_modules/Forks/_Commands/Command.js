@@ -76,13 +76,32 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             , _url = decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)
             , _error = (_refererPath.length > 0 && _refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 200)
             , _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false)
-            , _url = (_refererPath.length > 0 ? (_urlHasEnv ? _url : (_refererPath+_url)) : _url)
-            , _ext = path.parse(_url).ext.replace('.','')
+            if(process.env.debug !== "false")
+            {
+              console.log("Pre Url: ",_url,req.url,path.parse(_url));
+            }
+
+            if(_refererPath.indexOf(path.parse(_url).dir) > -1)
+            {
+              var _hasSeporator = (path.parse(_url).base.indexOf("/") !== 0 ? "/" : "")
+                , _isSubdir = (path.parse(_url).base.indexOf(".") < 0 ? (_url.lastIndexOf("/") === (_url.length-1) ? "/" : "") : "")
+              _url = (_refererPath+_hasSeporator+path.parse(_url).base+_isSubdir);
+            }
+            else
+            {
+              _url = (!_urlHasEnv ? (_refererPath+_url) : _url);
+            }
+            var _ext = path.parse(_url).ext.replace('.','')
             , _dir = path.parse(_url).dir
             , _filename = (path.parse(_url).base)
             , _query = (req.query !== undefined ? req.query : {})
             , _queryString = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : "")+decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
             , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
+
+            if(process.env.debug !== "false")
+            {
+              console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Host: ",_host," ip: ",_ip," Error: ",_error);
+            }
 
             var _request = CreateRequest()
             .url(_url)

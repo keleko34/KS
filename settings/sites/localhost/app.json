@@ -4,6 +4,10 @@
   "cached":false,
   "firewall":true,
   "logging":false,
+  "directory":true,
+  "templates":{
+    "directory":"default"
+  },
   "env":{
     "dev":"/dev",
     "qa":"/qa"

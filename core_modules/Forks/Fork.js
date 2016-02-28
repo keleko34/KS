@@ -98,10 +98,13 @@ module.exports = (function(CreateComm,CreateForkCommands){
     Fork.exception = function()
     {
       return function(err){
-        console.error('ERR: \033[31m',err.stack,"\033[37m");
-        //send error as well, later for modules
         Fork.comm().commands().list('log_error')({err:err.message,stack:err.stack});
         process.send({command:'crash',data:{type:'fork',id:Fork.id()}});
+        //send error as well, later for modules
+        if(process.env.debug !== "false")
+        {
+          console.error('ERR: \033[31m',err.stack,"\033[37m");
+        }
       }
     }
 

@@ -31,7 +31,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
             .id(x)
             .cluster(cluster.fork({
               id:x,
-              server:JSON.stringify(config.server)
+              server:JSON.stringify(config.server),
+              debug:(process.env.debug !== undefined ? process.env.debug : "false")
             }))
             .status('online'));
           Master.forks()[x].cluster().on('message',Master.comm());
@@ -46,7 +47,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
           .id(Master.forkCrash())
           .cluster(cluster.fork({
             id:Master.forkCrash(),
-            server:JSON.stringify(config.server)
+            server:JSON.stringify(config.server),
+            debug:(process.env.debug !== undefined ? process.env.debug : "false")
           }))
           .status('online'));
         Master.forks()[Master.forkCrash()].cluster().on('message',Master.comm());
@@ -64,7 +66,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
                   env:{
                     id:x,
                     controller:'thread',
-                    site:JSON.stringify(config.sites[Object.keys(config.sites)[x]])
+                    site:JSON.stringify(config.sites[Object.keys(config.sites)[x]]),
+                    debug:(process.env.debug !== undefined ? process.env.debug : "false")
                   }
               }))
               .status('online'));
@@ -80,7 +83,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
               env:{
                 id:Master.threadCrash(),
                 controller:'thread',
-                site:JSON.stringify(config.sites[Object.keys(config.sites)[Master.threadCrash()]])
+                site:JSON.stringify(config.sites[Object.keys(config.sites)[Master.threadCrash()]]),
+                debug:(process.env.debug !== undefined ? process.env.debug : "false")
               }
             }))
             .status('online'));

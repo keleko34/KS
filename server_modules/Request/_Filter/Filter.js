@@ -2,10 +2,11 @@ var env_module = require('./_Env/Env')
   , vhost_module = require('./_Vhost/Vhost')
   , alias_module = require('./_Alias/Alias')
   , file_module = require('./_File/File')
+  , directory_module = require('./_Directory/Directory')
   , error_module = require('./_Error/Error')
   , firewall_module = require('./_Firewall/Firewall')
 
-module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,CreateFile,CreateError){
+module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,CreateFile,CreateDirectory,CreateError){
   function CreateFilter()
   {
     var _type = 'env'
@@ -49,7 +50,6 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
           CreateFile()
           .host(this.host())
           .base(this.base())
-          .dir(this.dir())
           .location(this.location())
           .url(((this.url().indexOf('.') > -1) ? this.url() : (this.url()+(this.url().lastIndexOf('/') !== (this.url().length-1) ? "/index.html" : "index.html"))))
           .ext((this.ext().length < 1 ? 'html' : this.ext()))
@@ -57,6 +57,18 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
           .pipe(Filter.pipe())
           .then(Filter.then())
           .call(this);
+          return true;
+
+        case 'directory':
+          CreateDirectory()
+          .host(this.host())
+          .base(this.base())
+          .location(this.location())
+          .url(this.url())
+          .error(Filter.error())
+          .pipe(Filter.pipe())
+          .then(Filter.then())
+          .call(this)
           return true;
 
         case 'error':
@@ -123,4 +135,4 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
     return Filter;
   }
   return CreateFilter;
-}(env_module,vhost_module,alias_module,firewall_module,file_module,error_module));
+}(env_module,vhost_module,alias_module,firewall_module,file_module,directory_module,error_module));
