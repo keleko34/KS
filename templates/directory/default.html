@@ -15,8 +15,7 @@
 
         files.forEach(function(f,i){
           _fileNode = document.createElement('li');
-          console.log(f);
-          _fileNode.innerHTML = '<a href="'+f+'">'+f+'</a>';
+          _fileNode.innerHTML = '<a href="'+f+'">'+f.replace(/(\?)(.*)/,'')+'</a>';
           _dirNode.appendChild(_fileNode);
         });
       }(directory))

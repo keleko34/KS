@@ -22,7 +22,13 @@ module.exports = (function(fs,stream){
             fs.readdir((Directory.location()+Directory.base()+Directory.url()),function(err,files){
               if(!err)
               {
-                files.forEach(function(d,i){ files[i] = (d.indexOf('.') > -1 ? d : d+"/");});
+                var env;
+                if(req.queryString().env !== undefined)
+                {
+                  env = req.queryString().env;
+                }
+                console.log(env);
+                files.forEach(function(d,i){ files[i] = (d.indexOf('.') > -1 ? d : d+"/"); files[i] = (env !== undefined ? files[i]+"?env="+env : files[i]);});
                 fs.readFile((process.cwd().replace(/\\/g,"/")+"/templates/directory/"+(Directory.template())+".html"),{encoding:"utf8"},function(err,text){
                   text = text.replace(/(<title>)(.*?)(<\/title>)/,"<title>"+Directory.url()+"</title>\n<script type='text/javascript'>var directory = "+JSON.stringify(files)+"</script>");
 
