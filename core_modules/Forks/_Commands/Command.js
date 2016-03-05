@@ -80,11 +80,12 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             {
               console.log("Pre Url: ",_url,req.url,path.parse(_url));
             }
-
             if(_refererPath.indexOf(path.parse(_url).dir) > -1)
             {
-              var _hasSeporator = (path.parse(_url).base.indexOf("/") !== 0 ? "/" : "")
-                , _isSubdir = (path.parse(_url).base.indexOf(".") < 0 ? (_url.lastIndexOf("/") === (_url.length-1) ? "/" : "") : "")
+              
+              var _hasSeporator = (path.parse(_url).base.indexOf(".") < 0 ? (path.parse(_url).base.indexOf("/") !== 0 ? "/" : "") : "")
+                , _isSubdir = (path.parse(_url).base.indexOf(".") < 0 ? (_url.lastIndexOf("/") === (_url.length-1) ? "/" : "") : "");
+              console.log(_refererPath,_hasSeporator,path.parse(_url).base,_isSubdir);
               _url = (_refererPath+_hasSeporator+path.parse(_url).base+_isSubdir);
             }
             else
@@ -95,12 +96,20 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             , _dir = path.parse(_url).dir
             , _filename = (path.parse(_url).base)
             , _query = (req.query !== undefined ? req.query : {})
-            , _queryString = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : "")+decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
+            , _referQuery = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : ""))
+            , _queryString = querystring.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
             , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
-            console.log(process.env.debug,typeof process.env.debug);
+          
+            Object.keys(_referQuery).forEach(function(k,i){
+              if(_queryString[k] === undefined)
+              {
+                _queryString[k] = _referQuery[k];
+              }
+            });
+          
             if(process.env.debug !== "false")
             {
-              console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Host: ",_host," ip: ",_ip," Error: ",_error);
+              console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Query: ",_queryString," Host: ",_host," ip: ",_ip," Error: ",_error);
             }
 
             var _request = CreateRequest()
