@@ -6,7 +6,11 @@
   "logging":false,
   "directory":true,
   "templates":{
-    "directory":"default"
+    "directory":"default",
+    "error":{
+      "404":"default",
+      "500":"default"
+    }
   },
   "env":{
     "dev":"/dev",

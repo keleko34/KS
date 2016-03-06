@@ -12,8 +12,9 @@ module.exports = (function(fs){
       {
         this.base('/admin');
       }
-      this.base((this.base() !== '/admin' ? '/errors' : this.base()+'/errors'));
-      this.url('/'+Error.type()+'.html');
+      this.base((this.base() !== '/admin' ? '/templates/error' : this.base()+'/errors'));
+      this.url(this.base() !== '/admin' ? '/'+Error.type()+'/'+(config.sites[this.host()].app.templates.error[Error.type()])+'.html' : '/'+Error.type()+'.html');
+      this.location((this.base() !== '/admin' ? (process.cwd().replace(/\\/g,"/")) : this.location()));
       return fs.createReadStream(this.location()+this.base()+this.url());
     }
 
