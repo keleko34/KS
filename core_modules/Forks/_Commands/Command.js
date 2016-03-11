@@ -44,7 +44,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateRoute,Crea
      /* attach process events */
       if(ForkCommands.fork().status() !== 'online')
       {
-        process.send({command:'echo',data:{message:'Started: Fork:   '+data.id+' PID: '+process.pid}});
+        process.send({command:'echo',data:{message:'\033[35mStarted: Fork:   '+data.id+' PID: '+process.pid+"\033[39m"}});
         process.once('uncaughtException',ForkCommands.fork().exception());
         process.on('message',ForkCommands.fork().comm());
         process.once('error',ForkCommands.fork().exception())
@@ -60,62 +60,6 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateRoute,Crea
     if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
         var _serverRequest = function(req,res){
-
-          /*
-          var _error = 200
-            , _headers = (req.headers !== undefined ? req.headers : {})
-            , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
-            , _refererPath = (_referer.length > 0 ? (decodeURI(url.parse(_referer).pathname) !== "/" ? decodeURI(url.parse(_referer).pathname) : "")  : "")
-            , _host = (_referer.length > 0 ? url.parse(_referer).hostname :
-                      (_headers.host !== undefined ?
-                      (_headers.host.substring(0,
-                      (_headers.host.indexOf(":") > -1 ? _headers.host.indexOf(":") : _headers.host.length))
-                      ) : ("")))
-            , _error = (config.sites[_host] === undefined ? 1000 : 200)
-            , _config = (_error === 200 ? config.sites[_host] : {})
-            , _appConfig = (_config.app !== undefined ? _config.app : {})
-            , _envConfig = (_appConfig.env !== undefined ? _appConfig.env : {})
-            , _port = (config.server.http !== undefined ? config.server.http.port : 8080)
-
-            , _url = decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)
-            , _error = (_refererPath.length > 0 && _refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 200)
-            , _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false)
-            if(process.env.debug !== "false")
-            {
-              console.log("Pre Url: ",_url,req.url,path.parse(_url));
-            }
-            if(_refererPath.indexOf(path.parse(_url).dir) > -1)
-            {
-              
-              var _hasSeporator = (path.parse(_url).base.indexOf(".") < 0 ? (path.parse(_url).base.indexOf("/") !== 0 ? "/" : "") : "")
-                , _isSubdir = (path.parse(_url).base.indexOf(".") < 0 ? (_url.lastIndexOf("/") === (_url.length-1) ? "/" : "") : "");
-              console.log(_refererPath,_hasSeporator,path.parse(_url).base,_isSubdir);
-              _url = (_refererPath+_hasSeporator+path.parse(_url).base+_isSubdir);
-            }
-            else
-            {
-              _url = (!_urlHasEnv ? (_refererPath+_url) : _url);
-            }
-            var _ext = path.parse(_url).ext.replace('.','')
-            , _dir = path.parse(_url).dir
-            , _filename = (path.parse(_url).base)
-            , _query = (req.query !== undefined ? req.query : {})
-            , _referQuery = querystring.parse((_referer.length > 0 ? decodeURI(url.parse(_referer).query) : ""))
-            , _queryString = querystring.parse(decodeURI(url.parse(req.url !== undefined ? req.url : '/').query))
-            , _ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress);
-          
-            Object.keys(_referQuery).forEach(function(k,i){
-              if(_queryString[k] === undefined)
-              {
-                _queryString[k] = _referQuery[k];
-              }
-            });
-          
-            if(process.env.debug !== "false")
-            {
-              console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Query: ",_queryString," Host: ",_host," ip: ",_ip," Error: ",_error);
-            }
-            */
             var _referer = (req.headers.referer || req.headers.referrer);
             var _request = CreateRequest()
             .headers(req.headers)

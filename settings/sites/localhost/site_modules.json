@@ -1,6 +1,14 @@
 {
-  "base":"./admin",
-  "modules":{
+  "threads":[
+    {
+      "modules":{
 
-  }
+      }
+    },
+    {
+      "modules":{
+
+      }
+    }
+  ]
 }

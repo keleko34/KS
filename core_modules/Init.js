@@ -22,7 +22,9 @@ module.exports = (function(CreateMaster,CreateFork,os,cluster){
       {
         Init.master()
         .forkCount(os.cpus().length)
-        .threadCount((config.sites !== undefined ? Object.keys(config.sites).length : 1))
+        .threadCount((config.sites !== undefined ? (Object.keys(config.sites)
+                    .map(function(s,i){return config.sites[s].site_modules.threads.length;})
+                    .reduce(function(a,b){return a+b;})+1) : 1))
         .call(Init.master())
       }
       else

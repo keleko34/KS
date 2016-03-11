@@ -27,7 +27,7 @@ module.exports = (function(){
     {
       if(ThreadCommands.thread().status() !== 'online')
       {
-        process.send({command:'echo',data:{message:'Started: Thread: '+data.id+' PID: '+process.pid}});
+        process.send({command:'echo',data:{message:'\033[36mStarted: Thread: '+data.id+' PID: '+process.pid+"\033[39m"}});
         process.once('uncaughtException',ThreadCommands.thread().exception());
         process.on('message',ThreadCommands.thread().comm());
         process.on('error',ThreadCommands.thread().exception())

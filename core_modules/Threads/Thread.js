@@ -146,7 +146,6 @@ if(process.env.controller !== undefined)
   thread()
   .id(process.env.id)
   .controller(process.env.controller)
-  .modules(JSON.parse(process.env.site).site_modules.modules)
   .call(process)
 }
 else
