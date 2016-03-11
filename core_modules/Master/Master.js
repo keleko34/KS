@@ -151,6 +151,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         return _forkCrash;
       }
       _forkCrash = (((typeof c === 'number' || !isNaN(parseInt(c,10))) && parseInt(c,10) <= _forkCount) ? parseInt(c,10) : _forkCrash);
+      delete require.cache[require.resolve('./../Forks/Fork')];
+      CreateFork = fork_module = require('./../Forks/Fork');
       return Master;
     }
 
@@ -192,6 +194,8 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
         return _threadCrash;
       }
       _threadCrash = (((typeof c === 'number' || !isNaN(parseInt(c,10))) && parseInt(c,10) <= _threadCount) ? parseInt(c,10) : _threadCrash);
+      delete require.cache[require.resolve('./../Threads/Thread')];
+      CreateThread = thread_module = require('./../Threads/Thread');
       return Master;
     }
 

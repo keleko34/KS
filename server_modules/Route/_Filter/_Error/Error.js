@@ -14,8 +14,9 @@ module.exports = (function(fs){
         this.base('/admin');
       }
       this.base((this.base() !== '/admin' ? '/templates/error' : this.base()+'/errors'));
-      this.url(this.base() !== '/admin' ? '/'+Error.type()+'/'+Error.template()+'.html' : '/'+Error.type()+'.html');
+      this.url(this.base().indexOf('/admin') < 0 ? '/'+Error.type()+'/'+Error.template()+'.html' : '/'+Error.type()+'.html');
       this.location((this.base() !== '/admin' ? (process.cwd().replace(/\\/g,"/")) : this.location()));
+      console.log(this.base(),this.location(),this.url());
       return fs.createReadStream(this.location()+this.base()+this.url());
     }
 

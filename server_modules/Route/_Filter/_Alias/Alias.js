@@ -12,31 +12,32 @@ module.exports = (function(url,querystring){
       if(config.sites[Alias.host()] !== undefined && config.sites[Alias.host()].alias !== undefined)
       {
         var found = false
+          , req = this
           , aliasKeys = Object.keys(config.sites[Alias.host()].alias)
           , x = 0
-          , filterAlias = (function(aliasReturn,urlToReplace)
+          , filterAlias = function(aliasReturn,urlToReplace)
             {
-              Object.keys(querystring.parse(url.parse(aliasReturn).query)).forEach((function(k,i){
-                var qString = this.queryString();
+              Object.keys(querystring.parse(url.parse(aliasReturn).query)).forEach(function(k,i){
+                var qString = req.query();
                 qString[k] = querystring.parse(url.parse(aliasReturn).query)[k];
-                this.queryString(qString);
-              }).bind(this));
-              this.url(this.url().replace(urlToReplace,decodeURI(url.parse(aliasReturn).pathname)));
-                       this.url(this.url().replace(/\/\//g,"/"));
-            }).bind(this)
+                req.query(qString);
+              });
+              req.url(req.url().replace(urlToReplace,decodeURI(url.parse(aliasReturn).pathname)));
+                       req.url(req.url().replace(/\/\//g,"/"));
+            }
 
         outer:for(x;x<aliasKeys.length;x+=1)
         {
           if(aliasKeys[x].indexOf('*') < 0)
           {
-            if(this.url() === aliasKeys[x])
+            if(req.url() === aliasKeys[x])
             {
               filterAlias(config.sites[Alias.host()].alias[aliasKeys[x]],aliasKeys[x]);
               found = true;
               break outer;
             }
           }
-          else if(this.url().indexOf(aliasKeys[x].replace('*','')) === 0)
+          else if(req.url().indexOf(aliasKeys[x].replace('*','')) === 0)
           {
             filterAlias(config.sites[Alias.host()].alias[aliasKeys[x]],aliasKeys[x].replace('*',''));
             found = true;

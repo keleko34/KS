@@ -29,7 +29,7 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
         case 'env':
           var _env = CreateEnv()
           .host(this.host())
-          .active((this.queryString().env !== undefined ? this.queryString().env : this.base()));
+          .active((this.query().env !== undefined ? this.query().env : this.base()));
           return _env.call(this);
 
         case 'vhost':
@@ -74,7 +74,7 @@ module.exports = (function(CreateEnv,CreateVhost,CreateAlias,CreateFirewall,Crea
         case 'error':
           var _err = CreateError()
           .type(Filter.statusCode())
-          .template(config.sites[this.host()].app.templates !== undefined ? config.sites[this.host()].app.templates.error[Error.type()] : 'default')
+          .template(this.config().app !== undefined ? this.config().app.templates.error[Filter.statusCode()] : 'default')
           .call(this);
 
           Filter.error()

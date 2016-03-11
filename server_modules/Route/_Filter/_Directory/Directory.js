@@ -23,9 +23,9 @@ module.exports = (function(fs,stream){
               if(!err)
               {
                 var env;
-                if(req.queryString().env !== undefined)
+                if(req.query().env !== undefined)
                 {
-                  env = req.queryString().env;
+                  env = req.query().env;
                 }
                 console.log(env);
                 files.forEach(function(d,i){ files[i] = (d.indexOf('.') > -1 ? d : d+"/"); files[i] = (env !== undefined ? files[i]+"?env="+env : files[i]);});
@@ -136,7 +136,7 @@ module.exports = (function(fs,stream){
           {
             if(process.env.debug !== "false")
             {
-              console.error('Directory Not Allowed: Directory Filter: \033[31m',dir,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
+              console.error('Directory Not Allowed: Directory Filter: Check: \033[31m',dir,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
             }
             err(500);
           }
@@ -145,7 +145,7 @@ module.exports = (function(fs,stream){
         {
           if(process.env.debug !== "false")
           {
-            console.error('Directory Not Found: Directory Filter: \033[31m',dir,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
+            console.error('Directory Not Found: Directory Filter: Check: \033[31m',dir,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
           }
           err(404);
         }
@@ -165,7 +165,7 @@ module.exports = (function(fs,stream){
           {
             if(process.env.debug !== "false")
             {
-              console.error('This is not a Directory: Directory Filter: \033[31m',Directory.host(),Directory.base(),Directory.url(),"\033[37m");
+              console.error('This is not a Directory: Directory Filter: Exists: \033[31m', d ,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
             }
             err(404);
           }
@@ -174,7 +174,7 @@ module.exports = (function(fs,stream){
         {
           if(process.env.debug !== "false")
           {
-            console.error('Directory Not Found: Directory Filter: \033[31m',Directory.host(),Directory.base(),Directory.url(),"\033[37m");
+            console.error('Directory Not Found: Directory Filter: Exists: \033[31m', d ,Directory.host(),Directory.base(),Directory.url(),"\033[37m");
           }
           err(404);
         }

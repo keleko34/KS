@@ -156,7 +156,7 @@ module.exports = (function(fs,path){
           {
             if(process.env.debug !== "false")
             {
-              console.error('Blocked Url: File Filter: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
+              console.error('Blocked Url: File Filter: Check: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
             }
             err(500);
           }
@@ -165,7 +165,7 @@ module.exports = (function(fs,path){
         {
           if(process.env.debug !== "false")
           {
-            console.error('Bad directory: File Filter: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
+            console.error('Bad directory: File Filter: Check: \033[31m',dir,File.host(),File.base(),File.url(),"\033[37m");
           }
           err(404);
         }
@@ -185,7 +185,7 @@ module.exports = (function(fs,path){
           {
             if(process.env.debug !== "false")
             {
-              console.error('Is Not File: File Filter: \033[31m',File.host(),File.base(),File.url(),"\033[37m");
+              console.error('Is Not File: File Filter: Exist: \033[31m',f,File.host(),File.base(),File.url(),"\033[37m");
             }
             err(404);
           }
@@ -194,7 +194,7 @@ module.exports = (function(fs,path){
         {
           if(process.env.debug !== "false")
           {
-            console.error('File does not exist: File Filter: \033[31m',File.host(),File.base(),File.url(),"\033[37m");
+            console.error('File does not exist: File Filter: Exist: \033[31m',f,File.host(),File.base(),File.url(),"\033[37m");
           }
           err(404);
         }

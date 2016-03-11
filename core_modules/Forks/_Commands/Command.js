@@ -5,12 +5,13 @@ var http_module = require(server_modules_path+'/HTTP/HTTP')
   , https_module = require(server_modules_path+'/HTTPS/HTTPS')
   , https_server_module = require('https')
   , request_module = require(server_modules_path+'/Request/Request')
+  , route_module = require(server_modules_path+'/Route/Route')
   , log_module = require(server_modules_path+'/Log/Log')
   , path_module = require('path')
   , url_module = require('url')
   , query_module = require('querystring')
 
-module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,https,path,url,querystring){
+module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateRoute,CreateLog,http,https,path,url,querystring){
   function CreateForkCommands()
   {
     var _fork = function(){}
@@ -59,6 +60,8 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
     if(config !== undefined && ForkCommands.fork().status() === 'online')
     {
         var _serverRequest = function(req,res){
+
+          /*
           var _error = 200
             , _headers = (req.headers !== undefined ? req.headers : {})
             , _referer = (_headers.referer !== undefined ? _headers.referer : (_headers.referrer !== undefined ? _headers.referrer : ""))
@@ -73,6 +76,7 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             , _appConfig = (_config.app !== undefined ? _config.app : {})
             , _envConfig = (_appConfig.env !== undefined ? _appConfig.env : {})
             , _port = (config.server.http !== undefined ? config.server.http.port : 8080)
+
             , _url = decodeURI(url.parse(req.url !== undefined ? req.url : '/').pathname)
             , _error = (_refererPath.length > 0 && _refererPath.indexOf("/admin") < 0 && _url.indexOf("/admin") > -1 ? 500 : 200)
             , _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false)
@@ -111,35 +115,51 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
             {
               console.log("Reffered: ",_referer," Referer Path: ",_refererPath," Url: ",_url," Query: ",_queryString," Host: ",_host," ip: ",_ip," Error: ",_error);
             }
-
+            */
+            var _referer = (req.headers.referer || req.headers.referrer);
             var _request = CreateRequest()
-            .url(_url)
-            .ext(_ext)
-            .host(_host)
-            .dir(_dir)
-            .fileName(_filename)
-            .query(_query)
-            .queryString(_queryString)
-            .parsedUrl(url.parse(req.url !== undefined ? req.url : '/'))
-            .path(path.parse(_url))
-            .ip(_ip)
-            .port(_port)
-            .config(_config)
-            .base(_appConfig.base !== undefined ? _appConfig.base : '/app')
-            .protocol('http')
-            .throwError(_error);
+            .headers(req.headers)
+            .referer(_referer !== undefined ? _referer : '')
+            .referPath(_referer !== undefined ? _referer : '')
+            .host(req.headers)
+            .port((config.server.http !== undefined ? (config.server.http.port) : 8080))
+            .query(req.query !== undefined ? req.query : {})
+            .url(req.url)
+            .ip((req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress))
+            .ext(req.url)
+            .referQuery(_referer !== undefined ? _referer : '')
+            .urlQuery(req.url);
+            _request.call({},req);
 
-            _request.call(ForkCommands.fork().http(),res);
-
-            if(_appConfig.logging !== undefined && _appConfig.logging && _error === 200 && _referer.length < 1)
+            if(process.env.debug !== "false")
             {
-              _logger
-              .host(_request.host())
-              .url(_request.base()+_request.url())
-              .ip(_request.ip())
+               console.log("Request Info: URL: ",_request.url()," HOST: ",_request.host()," IP: ",_request.ip(), " Query: ",_request.query(), " ReferrerPath: ", _request.referPath()," Base: ",_request.base());
+            }
+
+            var _route = CreateRoute()
+            .url(_request.url())
+            .ext(_request.ext())
+            .host(_request.host())
+            .dir(_request.dir())
+            .fileName(_request.filename())
+            .query(_request.query())
+            .ip(_request.ip())
+            .port(_request.port())
+            .config(_request.config())
+            .base(_request.base())
+            .protocol('http')
+            .throwError(_request.status());
+
+            _route.call(ForkCommands.fork().http(),res);
+
+            if(_request.appConfig().logging !== undefined && _request.appConfig().logging && _error === 200 && _referer.length < 1)
+            {
+              _logger.host(_route.host())
+              .url(_route.base()+_route.url())
+              .ip(_route.ip())
               .type('request')
-              .error(_error)
-              .call(_request);
+              .error(_request.status())
+              .call(_route);
             }
         }
           , _server = http.createServer(_serverRequest)
@@ -192,4 +212,4 @@ module.exports = (function(CreateHTTP,CreateHTTPS,CreateRequest,CreateLog,http,h
     return ForkCommands;
   }
   return CreateForkCommands;
-}(http_module,https_module,request_module,log_module,http_server_module,https_server_module,path_module,url_module,query_module));
+}(http_module,https_module,request_module,route_module,log_module,http_server_module,https_server_module,path_module,url_module,query_module));

@@ -9,7 +9,7 @@ module.exports = (function(){
     {
       if(config.sites[Vhost.host()] !== undefined)
       {
-        if(Vhost.request().indexOf('/admin') > -1 && config.sites[Vhost.host()].app.admin)
+        if(this.base().indexOf('/admin') === 0 && config.sites[Vhost.host()].app.admin)
         {
           this.location(process.cwd());
           this.url(this.url().replace('/admin','/').replace('//','/'));

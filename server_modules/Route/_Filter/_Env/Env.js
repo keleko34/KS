@@ -8,11 +8,7 @@ module.exports = (function(){
     {
       if(config.sites[Env.host()] !== undefined)
       {
-        if(this.url().indexOf('/admin') === 0 && config.sites[Env.host()].app.admin)
-        {
-          this.base("/admin");
-        }
-        else if(config.sites[Env.host()].app.env[Env.active()] !== undefined)
+        if(this.base().indexOf('/admin') !== 0 && config.sites[Env.host()].app.env[Env.active()] !== undefined)
         {
           this.base(config.sites[Env.host()].app.env[Env.active()]);
         }

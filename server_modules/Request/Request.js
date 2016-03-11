@@ -1,97 +1,179 @@
-var filter_module = require('./_Filter/Filter')
-  , send_module = require('./_Send/Send');
+  var path_module = require('path')
+  , url_module = require('url')
+  , query_module = require('querystring')
 
-module.exports = (function(CreateFilter,CreateSend){
+module.exports = (function(path,url,query){
   function CreateRequest()
   {
-    var _pipeOrder = ['file','module','directory','error']
-      , _url =''
-      , _ext = ''
-      , _base ='/app'
-      , _fileName = ''
-      , _dir = ''
-      , _query = {}
-      , _config = {}
-      , _path = {root:'/',dir:'',base:'',ext:'',name:''}
-      , _querystring = {}
+    var _status = 200
+      , _headers = {}
+      , _referer = ''
+      , _referPath = ''
       , _host = ''
-      , _location = process.cwd().replace(/\\/g,"/")
-      , _ip = ''
-      , _protocol = 'http'
-      , _protocolEnum = ['http','https']
+      , _config = {}
+      , _appConfig = {}
+      , _envConfig = {}
       , _port = 8080
-      , _throwError = 200
+      , _url = ''
+      , _ext = ''
+      , _dir = ''
+      , _filename = ''
+      , _query = {}
+      , _referQuery = {}
+      , _urlQuery = {}
+      , _ip = ''
+      , _base = '/app'
 
-    function Request(res)
+    function Request()
     {
-      var _alias = CreateFilter().type('alias').call(Request)
-        , _env = CreateFilter().type('env').call(Request)
-        , _vhost = CreateFilter().type('vhost').call(Request)
-        , _firewall = (_vhost ? (config.sites[Request.host()].app.firewall ? CreateFilter().type('firewall').call(Request) : true) : false)
-        , _error = function(stream,code){
-              var _send = CreateSend()
-              .host(Request.host())
-              .ext('html')
-              .stream(true)
-              .content(stream)
-              .error(code)
-              .call(Request,res);
-          }
-        , _pipe = function(stream,ext){
-                var _send = CreateSend()
-                .host(Request.host())
-                .location(Request.protocol()+"://"+Request.host()+((Request.port() !== 80 && Request.port() !== 443) ? (":"+Request.port()) : "")+Request.base()+Request.url())
-                .ext(ext)
-                .stream(true)
-                .error(200)
-                .content(stream)
-                .call(Request,res);
-          }
-        , _createError = function(err)
-          {
-            CreateFilter().type('error').statusCode(err).error(_error).call(Request);
-          }
-
-      if(Request.throwError() !== 200)
+      if(_host.length > 0 && config.sites[_host] !== undefined)
       {
-        if(process.env.debug !== "false")
-        {
-          console.error('Throwing Request Error: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
-        }
-        _createError(Request.throwError());
-      }
-      else if(!_vhost)
-      {
-        if(process.env.debug !== "false")
-        {
-          console.error('VHOST not found: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
-        }
-        _createError(1000);
-      }
-      else if(!_firewall)
-      {
-        if(process.env.debug !== "false")
-        {
-          console.error('Blocked By Firewall: Request Module: \033[31m',Request.host(),Request.base(),Request.url(),"\033[37m");
-        }
-        _createError(500);
+        Request.config(config.sites[_host]);
       }
       else
       {
-        CreateFilter().type('file').pipe(_pipe).then(function(err){
-          if(err !== undefined)
-          {
-            if(err === 404 && Request.url().indexOf(".") < 0)
-            {
-              CreateFilter().type('directory').pipe(_pipe).error(_createError).call(Request);
-            }
-            else
-            {
-              _createError(err);
-            }
-          }
-        }).call(Request);
+        Request.status(1000);
       }
+
+      if(_referPath.length > 0 && _referPath.indexOf("/admin") < 0 && Request.url().indexOf("/admin") > -1)
+      {
+        Request.status(500);
+      }
+      else
+      {
+        Request.status(200);
+      }
+      Object.keys(_referQuery).forEach(function(k,i){
+        if(_urlQuery[k] === undefined)
+        {
+          _urlQuery[k] = _referQuery[k];
+        }
+      });
+      Object.keys(_urlQuery).forEach(function(k,i){
+        if(_query[k] === undefined)
+        {
+          _query[k] = _urlQuery[k];
+        }
+      });
+
+      Request.dir(Request.url());
+      Request.filename(Request.url());
+      Request.base((Request.referPath().indexOf('/admin') === 0 || Request.url().indexOf('/admin') === 0) ? '/admin' : Request.base());
+      Object.keys(Request.envConfig()).forEach(function(e,i){
+        if(Request.base().indexOf("/admin") !== 0)
+        {
+          e = e.replace("*","");
+          console.log(Request.referPath().replace("/",""),e,Request.referPath().replace("/","").indexOf(e));
+          if(Request.referPath().replace("/","").indexOf(e) === 0)
+          {
+            Request.base("/"+e);
+          }
+        }
+      });
+    }
+
+    Request.status = function(s)
+    {
+      if(s === undefined)
+      {
+        return _status;
+      }
+      _status = (typeof s === 'number' ? s : _status);
+      return Request;
+    }
+
+    Request.headers = function(s)
+    {
+      if(s === undefined)
+      {
+        return _headers;
+      }
+      _headers = (typeof s === 'objetc' && s.host !== undefined ? s : _headers);
+      return Request;
+    }
+
+    Request.referer = function(s)
+    {
+      if(s === undefined)
+      {
+        return _referer;
+      }
+      _referer = (typeof s === 'string' && s.length > 0 ? s : _referer);
+      return Request;
+    }
+
+    Request.referPath = function(s)
+    {
+      if(s === undefined)
+      {
+        return _referPath;
+      }
+      if(typeof s === 'string' && s === Request.referer() && s.length > 0)
+      {
+        _referPath = (decodeURI(url.parse(s).pathname) !== "/" ? decodeURI(url.parse(s).pathname) : _referPath);
+      }
+      return Request;
+    }
+
+    Request.host = function(s)
+    {
+      if(s === undefined)
+      {
+        return _host;
+      }
+      if(Request.referer().length > 0)
+      {
+        _host = url.parse(_referer).hostname;
+      }
+      else if(typeof s === 'object' && s.host !== undefined)
+      {
+        _host = (s.host.substring(0,(s.host.indexOf(":") > -1 ? s.host.indexOf(":") : s.host.length)));
+      }
+      Request.config(config.sites[_host]);
+      return Request;
+    }
+
+    Request.config = function(c)
+    {
+      if(c === undefined)
+      {
+        return _config;
+      }
+      _config = (typeof c === 'object' && c.app !== undefined ? c : _config);
+      Request.appConfig(_config.app);
+      return Request;
+    }
+
+    Request.appConfig = function(c)
+    {
+      if(c === undefined)
+      {
+        return _appConfig;
+      }
+      _appConfig = (typeof c === 'object' && c.env !== undefined ? c : _appConfig);
+      Request.envConfig(_appConfig.env);
+      Request.base(_appConfig.base);
+      return Request;
+    }
+
+    Request.envConfig = function(c)
+    {
+      if(c === undefined)
+      {
+        return _envConfig;
+      }
+      _envConfig = (typeof c === 'object' ? c : _envConfig);
+      return Request;
+    }
+
+    Request.port = function(p)
+    {
+      if(p === undefined)
+      {
+        return _port;
+      }
+      _port = (typeof p === 'number' || !isNaN(parseInt(p,10)) ? parseInt(p,10) : _port);
+      return Request;
     }
 
     Request.url = function(u)
@@ -100,7 +182,17 @@ module.exports = (function(CreateFilter,CreateSend){
       {
         return _url;
       }
-      _url = (typeof u === 'string' ? u : _url);
+      _url = (typeof u === 'string' ? (decodeURI(url.parse(u).pathname)) : _url);
+      if(Request.referPath().indexOf(path.parse(_url).dir) > -1)
+      {
+        var _hasSeporator = (path.parse(_url).base.indexOf(".") < 0 ? (path.parse(_url).base.indexOf("/") !== 0 ? "/" : "") : "")
+          , _isSubdir = (path.parse(_url).base.indexOf(".") < 0 ? (_url.lastIndexOf("/") === (_url.length-1) ? "/" : "") : "");
+      }
+      else
+      {
+        var _urlHasEnv = (_envConfig[_url.substring(0,_url.indexOf("/",1)).replace("/","")] !== undefined ? true : false);
+        _url = (!_urlHasEnv ? (Request.referPath()+_url) : _url);
+      }
       return Request;
     }
 
@@ -110,57 +202,58 @@ module.exports = (function(CreateFilter,CreateSend){
       {
         return _ext;
       }
-      _ext = (typeof e === 'string' ? e : _ext);
+      _ext = (typeof e === 'string' && e.indexOf('.') > -1 ? (path.parse(e).ext.replace('.','')) : _ext);
       return Request;
     }
 
-    Request.host = function(h)
+    Request.dir = function(d)
     {
-      if(h === undefined)
-      {
-        return _host;
-      }
-      _host = (typeof h === 'string' ? (h.indexOf(':') > -1 ? (h.substring(0,h.indexOf(':'))) : h) : _host);
-      return Request;
-    }
-
-    Request.dir = function(h)
-    {
-      if(h === undefined)
+      if(d === undefined)
       {
         return _dir;
       }
-      _dir = (typeof n === 'string' ? n : _dir);
+      _dir = (typeof d === 'string' ? path.parse(d).dir : _dir);
       return Request;
     }
 
-    Request.base = function(b)
+    Request.filename = function(f)
     {
-      if(b === undefined)
+      if(f === undefined)
       {
-        return _base;
+        return _filename;
       }
-      _base = (typeof b === 'string' ? (b.indexOf('/') !== 0 && b.length > 1 ? "/" : "")+b : _base);
+      _filename = (typeof f === 'string' ? (path.parse(f).dir) : _filename);
+    }
+
+    Request.query = function(q)
+    {
+      if(q === undefined)
+      {
+        return _query;
+      }
+      _query = (typeof q === 'object' ? q : _query);
       return Request;
     }
 
-    Request.fileName = function(b)
+    Request.referQuery = function(q)
     {
-      if(b === undefined)
+      if(q === undefined)
       {
-        return _fileName;
+        return _referQuery;
       }
-      _fileName = (typeof b === 'string' && b.indexOf('.') > -1 ? b : _fileName);
+      _referQuery = (typeof q === 'string' ? query.parse(decodeURI(url.parse(q).query)) : _referQuery);
+      _referQuery = (_referQuery.null !== undefined ? {} : _referQuery);
       return Request;
     }
 
-    Request.location = function(u)
+    Request.urlQuery = function(q)
     {
-      if(u === undefined)
+      if(q === undefined)
       {
-        return _location;
+        return _urlQuery;
       }
-      _location = (typeof u === 'string' ? u.replace(/\\/g,"/") : _location);
+      _urlQuery = (typeof q === 'string' ? query.parse(decodeURI(url.parse(q).query)) : _urlQuery);
+      _urlQuery = (_urlQuery.null !== undefined ? {} : _urlQuery);
       return Request;
     }
 
@@ -175,87 +268,17 @@ module.exports = (function(CreateFilter,CreateSend){
       return Request;
     }
 
-    Request.protocol = function(b)
+    Request.base = function(b)
     {
       if(b === undefined)
       {
-        return _protocol;
+        return _base;
       }
-      _protocol = (_protocolEnum.indexOf(b) > -1 ? b : _protocol);
-      return Request;
-    }
-
-    Request.port = function(p)
-    {
-      if(p === undefined)
-      {
-        return _port;
-      }
-      _port = ((typeof p === 'number' || !isNaN(parseInt(p,10))) ? parseInt(p,10) : _port);
-      return Request;
-    }
-
-    Request.path = function(c)
-    {
-      if(c === undefined)
-      {
-        return _path;
-      }
-      _path = (typeof c === 'object' && c.ext !== undefined ? c : _path);
-      return Request;
-    }
-
-    Request.config = function(c)
-    {
-      if(c === undefined)
-      {
-        return _config;
-      }
-      _config = (typeof c === 'object' ? c : config);
-      return Request;
-    }
-
-    Request.query = function(q)
-    {
-      if(q === undefined)
-      {
-        return _query;
-      }
-      _query = (typeof q === 'object' ? q : _query);
-      return Request;
-    }
-
-    Request.queryString = function(q)
-    {
-      if(q === undefined)
-      {
-        return _querystring;
-      }
-      _querystring = (typeof q === 'object' ? q : _querystring);
-      return Request;
-    }
-
-    Request.parsedUrl = function(u)
-    {
-      if(u === undefined)
-      {
-        return _parsedUrl;
-      }
-      _parsedUrl = (typeof u === 'object' && u.pathname !== undefined ? u : _parsedUrl);
-      return Request;
-    }
-
-    Request.throwError = function(e)
-    {
-      if(e === undefined)
-      {
-        return _throwError;
-      }
-      _throwError = (typeof e === 'number' ? e : _throwError);
+      _base = (typeof b === 'string' && b.indexOf('/') === 0 ? b : _base);
       return Request;
     }
 
     return Request;
   }
   return CreateRequest;
-}(filter_module,send_module));
+}(path_module,url_module,query_module));
