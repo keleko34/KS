@@ -5,6 +5,7 @@ module.exports = (function(fs){
   {
     var _type = 0
       , _typeEnum = [404,500,1000] //need to add more
+      , _template = 'default'
 
     function Error()
     {
@@ -13,9 +14,19 @@ module.exports = (function(fs){
         this.base('/admin');
       }
       this.base((this.base() !== '/admin' ? '/templates/error' : this.base()+'/errors'));
-      this.url(this.base() !== '/admin' ? '/'+Error.type()+'/'+(config.sites[this.host()].app.templates.error[Error.type()])+'.html' : '/'+Error.type()+'.html');
+      this.url(this.base() !== '/admin' ? '/'+Error.type()+'/'+Error.template()+'.html' : '/'+Error.type()+'.html');
       this.location((this.base() !== '/admin' ? (process.cwd().replace(/\\/g,"/")) : this.location()));
       return fs.createReadStream(this.location()+this.base()+this.url());
+    }
+
+    Error.template = function(t)
+    {
+      if(t === undefined)
+      {
+        return _template;
+      }
+      _template = (typeof t === 'string' ? t : _template);
+      return Error;
     }
 
     Error.type = function(t)
