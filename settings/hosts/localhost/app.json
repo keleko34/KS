@@ -5,6 +5,12 @@
   "firewall":true,
   "logging":false,
   "directory":true,
+  "fileFilter":true,
+  "rest":
+  {
+      "http":false,
+      "websockets":false
+  },
   "templates":{
     "directory":"default",
     "error":{

@@ -1,9 +1,16 @@
 {
-  "env":"dev",
-  "envEnum":["dev","qa","prod"],
-  "logging":
+  "http":
   {
-      "requests":"all",
-      "debug":true
+      "port":8080
+  },
+  "https":
+  {
+      "port":443,
+      "cert":"<file>"
+  },
+  "http2":
+  {
+      "port":8080,
+      "cert":"<file>"
   }
 }

@@ -1,8 +1,8 @@
 /* Init Initializes Master and starts entire process */
 var CreateInit = require('./core_modules/Init')
 /* Fetch all the settings so they can be passed down the chain to the modules that need it */
-  , settings = require('./settings/main.json');
-    settings.server = require('./settings/server.json');
+  , settings = {};
+    settings.server = require('./settings/main.json');
     settings.server_modules = require('./settings/server_modules.json');
     settings.vhost = require('./settings/vhost.json');
     settings.sites = {};
