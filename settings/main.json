@@ -6,11 +6,19 @@
   "https":
   {
       "port":443,
-      "cert":"<file>"
+      "key":"<file>",
+      "cert":"<file>",
+      "ca":"<file>",
+      "requestCert":true,
+      "rejectUnauthorized":true
   },
   "http2":
   {
       "port":8080,
-      "cert":"<file>"
+      "key":"<file>",
+      "cert":"<file>",
+      "ca":"<file>",
+      "requestCert":true,
+      "rejectUnauthorized":true
   }
 }
