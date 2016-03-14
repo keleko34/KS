@@ -17,39 +17,42 @@ module.exports = (function(fs){
 
     function Type()
     {
-      try
+      if(_protocol !== 'HTTP')
       {
-        _key = fs.readFileSync(_keyPath);
-      }
-      catch(e)
-      {
-        if(e.code === "ENOENT" && process.send !== undefined)
+        try
         {
-          process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Key: \033[39m"+_keyPath}});
+          _key = fs.readFileSync(_keyPath);
         }
-      }
-
-      try
-      {
-        _cert = fs.readFileSync(_certPath);
-      }
-      catch(e)
-      {
-        if(e.code === "ENOENT" && process.send !== undefined)
+        catch(e)
         {
-          process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Cert: \033[39m"+_certPath}});
+          if(e.code === "ENOENT" && process.send !== undefined)
+          {
+            process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Key: \033[39m"+_keyPath}});
+          }
         }
-      }
 
-      try
-      {
-        _ca = fs.readFileSync(_caPath);
-      }
-      catch(e)
-      {
-        if(e.code === "ENOENT" && process.send !== undefined)
+        try
         {
-          process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Key: \033[39m"+_caPath}});
+          _cert = fs.readFileSync(_certPath);
+        }
+        catch(e)
+        {
+          if(e.code === "ENOENT" && process.send !== undefined)
+          {
+            process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Cert: \033[39m"+_certPath}});
+          }
+        }
+
+        try
+        {
+          _ca = fs.readFileSync(_caPath);
+        }
+        catch(e)
+        {
+          if(e.code === "ENOENT" && process.send !== undefined)
+          {
+            process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Missing File Key: \033[39m"+_caPath}});
+          }
         }
       }
     }
