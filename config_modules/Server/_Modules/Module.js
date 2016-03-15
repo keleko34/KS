@@ -14,54 +14,50 @@ module.exports = (function(){
 
     function Module()
     {
-      if(_isValid || _version !== _invalidVersion)
+      try
       {
-        try
-        {
-          _isValid = true;
-          _fullpath = require.resolve(_path);
-        }
-        catch(e)
-        {
-          if(e.code === "MODULE_NOT_FOUND" && process.send !== undefined)
-          {
-            process.send({command:"debug","data":{"msg":"\033[91m"+e.code+" Module: \033[39m"+_path}});
-          }
-          _isValid = false;
-          _invalidVersion = _version;
-        }
-        if(_isValid && _load)
-        {
-          //always reload
-          _packagePath = _fullpath.substring(0,(_fullpath.indexOf(_path)+_path.length))+"/package.json";
+        _isValid = true;
+        _fullpath = require.resolve(_path);
+        _packagePath = _fullpath.substring(0,(_fullpath.indexOf(_path)+_path.length))+"/package.json";
 
-          _package = {};
-          require.cache[_packagePath] = null;
-          delete require.cache[_packagePath];
-          _package = require(_packagePath);
-          if(_package.version !== _version)
-          {
-            require.cache[_fullpath] = null;
-            delete require.cache[_fullpath];
-          }
-          _version = _package.version;
-          _description = _package.description;
-          _isLoaded = true;
-          require(_path);
-        }
-        else if(!_load && require.cache[_fullpath] !== undefined)
+        _package = {};
+        require.cache[_packagePath] = null;
+        delete require.cache[_packagePath];
+        _package = require(_packagePath);
+      }
+      catch(e)
+      {
+        if(e.code === "MODULE_NOT_FOUND" && process.send !== undefined)
         {
-          _package = {};
-          require.cache[_packagePath] = null;
-          delete require.cache[_packagePath];
-
+          process.send({command:"debug","data":{"msg":"\033[91m"+e.code+" Module: \033[39m"+_path}});
+        }
+        _isValid = false;
+        _invalidVersion = _version;
+      }
+      if(_isValid && _load && _invalidVersion !== _package.version)
+      {
+        if(_package.version !== _version)
+        {
           require.cache[_fullpath] = null;
           delete require.cache[_fullpath];
-
-          _version = 0;
-          _description = '';
-          _isLoaded = false;
         }
+        _version = _package.version;
+        _description = _package.description;
+        _isLoaded = true;
+        require(_path);
+      }
+      else if(!_load && require.cache[_fullpath] !== undefined)
+      {
+        _package = {};
+        require.cache[_packagePath] = null;
+        delete require.cache[_packagePath];
+
+        require.cache[_fullpath] = null;
+        delete require.cache[_fullpath];
+
+        _version = 0;
+        _description = '';
+        _isLoaded = false;
       }
     }
 
