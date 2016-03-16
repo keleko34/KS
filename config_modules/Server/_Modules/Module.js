@@ -34,7 +34,7 @@ module.exports = (function(){
         _isValid = false;
         _invalidVersion = _version;
       }
-      if(_isValid && _load && _invalidVersion !== _package.version)
+      if(_isValid && _load && _package.version !== undefined && _invalidVersion !== _package.version)
       {
         if(_package.version !== _version)
         {
@@ -46,7 +46,7 @@ module.exports = (function(){
         _isLoaded = true;
         require(_path);
       }
-      else if(!_load && require.cache[_fullpath] !== undefined)
+      else if(!_load && require.cache[_fullpath] !== undefined && _package.version !== undefined)
       {
         _package = {};
         require.cache[_packagePath] = null;
