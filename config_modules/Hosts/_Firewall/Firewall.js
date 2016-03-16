@@ -70,6 +70,30 @@ module.exports = (function(querystring,path){
       }
     }
 
+    Firewall.check = function(path,ip)
+    {
+      if(path.indexOf(_base) === 0)
+      {
+        path = path.replace(_base,"");
+      }
+      if(path === path+(Object.keys(_query).length > 0 ? querystring.stringify(_query) : ""))
+      {
+        if(_ipTable.indexOf(ip) > -1)
+        {
+          if(_type === 'deny')
+          {
+            return true;
+          }
+          return false;
+        }
+        else if(type === 'allow')
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
     Firewall.includeSub = function()
     {
       return _includeSub;
