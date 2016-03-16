@@ -9,13 +9,46 @@ module.exports = (function(fs,crypto){
       , _load = true
       , _isLoaded = false
       , _isChanged = false
+      , _onChange = function(){}
       , _isValid = true
+      , _onError = function(){}
+      , _inValidHash = ''
       , _fullpath = ''
       , _hash = ''
 
     function Module()
     {
-
+      _fullpath = process.cwd().replace(/\//g,"/")+_base+"/"+_title+"/"+_title+".js";
+      var md5 = crypto.createHash('md5');
+      try
+      {
+        md5 = md5.update(fs.readFileSync(_fullpath),'utf8').digest('hex');
+      }
+      catch(e)
+      {
+        if(e.code === 'ENOENT' && process.send !== undefined)
+        {
+          process.send({"command":"debug","data":{"msg":"\033[91m"+e.code+" Site Module: \033[39m"+_title}});
+        }
+        _isValid = false;
+        _onError(Module);
+      }
+      if(typeof md5 === 'string' && _hash !== md5)
+      {
+        _hash = md5;
+        _inValidHash = '';
+        _isChanged = true;
+        _isValid = true;
+        _load = true;
+        _isLoaded = false;
+        _onChange(Module);
+      }
+      else if(typeof md5 === 'string' && !_isValid)
+      {
+        _load = false;
+        _inValidHash = _hash;
+        _onError(Module);
+      }
     }
 
     Module.title = function(v)
@@ -66,6 +99,31 @@ module.exports = (function(fs,crypto){
       }
       _isValid = !!v;
       return Module;
+    }
+
+    Module.onChange = function(v)
+    {
+      if(v === undefined)
+      {
+        return _onChange;
+      }
+      _onChange = (typeof v === 'function' ? v : _onChange);
+      return Module;
+    }
+
+    Module.onError = function(v)
+    {
+      if(v === undefined)
+      {
+        return _onError;
+      }
+      _onError = (typeof v === 'function' ? v : _onError);
+      return Module;
+    }
+
+    Module.inValidHash = function(v)
+    {
+      return _inValidHash;
     }
 
     Module.isLoaded = function()
