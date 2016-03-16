@@ -11,6 +11,41 @@ module.exports = (function(){
 
     }
 
+    Thread.id = function(v)
+    {
+
+    }
+
+    Thread.modules = function(v)
+    {
+
+    }
+
+    Thread.moduleList = function()
+    {
+      return _moduleList;
+    }
+
+    Thread.addModule = function(v)
+    {
+
+    }
+
+    Thread.removeModule = function(v)
+    {
+
+    }
+
+    Thread.environment = function(v)
+    {
+
+    }
+
+    Thread.process = function()
+    {
+      return (process.send !== undefined ? process : _process);
+    }
+
 
     return Thread;
   }
