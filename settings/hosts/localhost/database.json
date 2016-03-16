@@ -3,7 +3,7 @@
   "databases":[
     {
       "type":"mongodb",
-      "ip":"<IP Address>",
+      "address":"<IP Address>",
       "dbname":"<DB Name>",
       "user":"<Username>",
       "pass":"<Password>"

@@ -43,17 +43,23 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
       }
 
       Object.keys(_modulesConfig).forEach(function(k,i){
-        _nodeModules[k] = CreateModule()
-        .path(k)
-        .load(_modulesConfig[k]);
-        _nodeModules[k].call();
+        if(typeof _modulesConfig[k] === 'boolean')
+        {
+          _nodeModules[k] = CreateModule()
+          .path(k)
+          .load(_modulesConfig[k]);
+          _nodeModules[k].call();
+        }
       });
 
       Object.keys(_vhostConfig).forEach(function(k,i){
-        _hosts[k] = CreateVhost()
-        .address(k)
-        .path(_vhostConfig[k]);
-        _hosts[k].call();
+        if(typeof _vhostConfig[k] === 'string')
+        {
+          _hosts[k] = CreateVhost()
+          .address(k)
+          .path(_vhostConfig[k]);
+          _hosts[k].call();
+        }
       });
     }
 
@@ -90,6 +96,26 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
     Server.nodeModules = function(v)
     {
       return (typeof v === 'string' ? (_nodeModules[v] !== undefined ? (_nodeModules[v]) : null) : null);
+    }
+
+    Server.addNodeModule = function(v,active)
+    {
+      if(typeof v === 'string')
+      {
+        _modulesConfig[v] = !!active;
+        Server.call();
+      }
+    }
+
+    Server.removeNodeModule = function(v)
+    {
+      if(typeof v === 'string' && _modulesConfig[v] !== undefined)
+      {
+        _modulesConfig[v] = false;
+        Server.call();
+        _modulesConfig[v] = null;
+        Server.call();
+      }
     }
 
     Server.http = function()
