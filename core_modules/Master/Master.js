@@ -60,6 +60,7 @@ module.exports = (function(CreateFork,CreateThread,CreateComm,CreateMasterComman
       {
         for(var x=Master.threads().length;x<Master.threadCount();x+=1)
         {
+          console.log(config.sites[Object.keys(config.sites)[x]]);
           Master.threads(x,CreateThread()
               .id(x)
               .fork(child_process.fork('./core_modules/Threads/Thread.js',[],{
