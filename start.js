@@ -8,13 +8,13 @@ var CreateInit = require('./core_modules/Init')
     settings.sites = {};
     Object.keys(settings.vhost).forEach(function(s,i){
       settings.sites[s] = {};
-      settings.sites[s].alias = require('./settings/sites/'+s+'/alias.json');
-      settings.sites[s].database = require('./settings/sites/'+s+'/database.json');
-      settings.sites[s].site_modules = require('./settings/sites/'+s+'/site_modules.json');
-      settings.sites[s].smtp = require('./settings/sites/'+s+'/smtp.json');
-      settings.sites[s].app = require('./settings/sites/'+s+'/app.json');
-      settings.sites[s].content_types = require('./settings/sites/'+s+'/content_types.json');
-      settings.sites[s].firewall = require('./settings/sites/'+s+'/firewall.json');
+      settings.sites[s].alias = require('./settings/hosts/'+s+'/alias.json');
+      settings.sites[s].database = require('./settings/hosts/'+s+'/database.json');
+      settings.sites[s].site_modules = require('./settings/hosts/'+s+'/site_modules.json');
+      settings.sites[s].smtp = require('./settings/hosts/'+s+'/smtp.json');
+      settings.sites[s].app = require('./settings/hosts/'+s+'/app.json');
+      settings.sites[s].content_types = require('./settings/hosts/'+s+'/content_types.json');
+      settings.sites[s].firewall = require('./settings/hosts/'+s+'/firewall.json');
     });
 global.config = settings;
 CreateInit().call(global);

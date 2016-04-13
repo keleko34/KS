@@ -1,18 +1,21 @@
 var modules_module = require('./_Modules/Module')
   , type_module = require('./_Type/Type')
-  , vhost_module = require('./_Vhost/Vhost');
+  , vhost_module = require('./_Vhost/Vhost')
+  , hosts_module = require('./_Hosts/Hosts');
 
-module.exports = (function(CreateModule,CreateType,CreateVhost){
+module.exports = (function(CreateModule,CreateType,CreateVhost,CreateHost){
   function CreateServer()
   {
     var _nodeModules = {}
       , _http = CreateType()
       , _https = CreateType()
       , _http2 =  CreateType()
+      , _vhosts = {}
       , _hosts = {}
       , _mainConfig = {}
       , _modulesConfig = {}
       , _vhostConfig = {}
+      , _hostConfig = {}
 
 
     function Server()
@@ -55,9 +58,19 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
       Object.keys(_vhostConfig).forEach(function(k,i){
         if(typeof _vhostConfig[k] === 'string')
         {
-          _hosts[k] = CreateVhost()
+          _vhosts[k] = CreateVhost()
           .address(k)
           .path(_vhostConfig[k]);
+          _vhosts[k].call();
+
+          _hosts[k] = CreateHost()
+          .appConfig((_hostConfig[k].app !== undefined ? _hostConfig[k].app : {}))
+          .aliasConfig((_hostConfig[k].alias !== undefined ? _hostConfig[k].alias : {}))
+          .contentTypeConfig((_hostConfig[k].content_types !== undefined ? _hostConfig[k].content_types : {}))
+          .databaseConfig((_hostConfig[k].database !== undefined ? _hostConfig[k].database : {}))
+          .firewallConfig((_hostConfig[k].firewall !== undefined ? _hostConfig[k].firewall : {}))
+          .threadConfig((_hostConfig[k].site_modules !== undefined ? _hostConfig[k].site_modules : {}))
+          .smtpConfig((_hostConfig[k].smtp !== undefined ? _hostConfig[k].smtp : {}))
           _hosts[k].call();
         }
       });
@@ -90,6 +103,16 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
         return _vhostConfig;
       }
       _vhostConfig = (typeof v === 'object' ? v : _vhostConfig);
+      return Server;
+    }
+
+    Server.hostConfig = function(v)
+    {
+      if(v === undefined)
+      {
+        return _hostConfig;
+      }
+      _hostConfig = (typeof v === 'object' ? v : _hostConfig);
       return Server;
     }
 
@@ -133,6 +156,11 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
       return _http2;
     }
 
+    Server.vhosts = function(v)
+    {
+      return (typeof v === 'string' ? (_vhosts[v] !== undefined ? (_vhosts[v]) : null) : null);
+    }
+
     Server.hosts = function(v)
     {
       return (typeof v === 'string' ? (_hosts[v] !== undefined ? (_hosts[v]) : null) : null);
@@ -141,4 +169,4 @@ module.exports = (function(CreateModule,CreateType,CreateVhost){
     return Server;
   }
   return CreateServer;
-}(modules_module,type_module,vhost_module));
+}(modules_module,type_module,vhost_module,hosts_module));

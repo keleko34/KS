@@ -143,6 +143,7 @@ var thread = (function(CreateComm,CreateThreadCommands){
 
 if(process.env.controller !== undefined)
 {
+  console.log(JSON.parse(process.env.site).site_modules.modules);
   thread()
   .id(process.env.id)
   .controller(process.env.controller)
