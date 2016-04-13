@@ -1,4 +1,0 @@
-function yay()
-{
-  return "yay";
-}

@@ -1,6 +1,0 @@
-{
-  "socket.io":false,
-  "socket.io-stream":false,
-  "mongoose":false,
-  "nodemailer":false
-}
