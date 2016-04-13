@@ -16,6 +16,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
       , _firewall = {}
       , _threads = {}
       , _smtp = {}
+      , _host = ''
 
       , _appConfig = {}
       , _aliasConfig = {}
@@ -29,6 +30,8 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
     {
       //App Section
       _app = CreateApp()
+      .host(_host)
+      .config(_appConfig)
       .base((_appConfig.base !== undefined ? _appConfig.base : '/app'))
       .admin((_appConfig.admin !== undefined ? _appConfig.admin : true))
       .cached((_appConfig.cached !== undefined ? _appConfig.cached : true))
@@ -46,6 +49,16 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
 
     }
 
+    Host.host = function(v)
+    {
+      if(v === undefined)
+      {
+        return _host;
+      }
+      _host = (typeof v === 'string' ? v : _host);
+      return Host;
+    }
+
     Host.hostConfig = function(v)
     {
       if(v === undefined)
@@ -53,6 +66,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _hostConfig;
       }
       _hostConfig = (typeof v === 'object' ? v : _hostConfig);
+      return Host;
     }
 
     Host.appConfig = function(v)
@@ -62,6 +76,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _appConfig;
       }
       _appConfig = (typeof v === 'object' ? v : _appConfig);
+      return Host;
     }
 
     Host.aliasConfig = function(v)
@@ -71,6 +86,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _aliasConfig;
       }
       _aliasConfig = (typeof v === 'object' ? v : _aliasConfig);
+      return Host;
     }
 
     Host.contentTypeConfig = function(v)
@@ -80,6 +96,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _contentTypeConfig;
       }
       _contentTypeConfig = (typeof v === 'object' ? v : _contentTypeConfig);
+      return Host;
     }
 
     Host.databaseConfig = function(v)
@@ -89,6 +106,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _databaseConfig;
       }
       _databaseConfig = (typeof v === 'object' ? v : _databaseConfig);
+      return Host;
     }
 
     Host.firewallConfig = function(v)
@@ -98,6 +116,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _firewallconfig;
       }
       _firewallconfig = (typeof v === 'object' ? v : _firewallconfig);
+      return Host;
     }
 
     Host.threadConfig = function(v)
@@ -107,6 +126,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _threadConfig;
       }
       _threadConfig = (typeof v === 'object' ? v : _threadConfig);
+      return Host;
     }
 
     Host.smtpConfig = function(v)
@@ -116,6 +136,7 @@ module.exports = (function(CreateApp,CreateAlias,CreateContentType,CreateDatabas
         return _smtpConfig;
       }
       _smtpConfig = (typeof v === 'object' ? v : _smtpConfig);
+      return Host;
     }
 
     Host.app = function()

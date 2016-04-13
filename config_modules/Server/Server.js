@@ -64,6 +64,7 @@ module.exports = (function(CreateModule,CreateType,CreateVhost,CreateHost){
           _vhosts[k].call();
 
           _hosts[k] = CreateHost()
+          .host(k)
           .appConfig((_hostConfig[k].app !== undefined ? _hostConfig[k].app : {}))
           .aliasConfig((_hostConfig[k].alias !== undefined ? _hostConfig[k].alias : {}))
           .contentTypeConfig((_hostConfig[k].content_types !== undefined ? _hostConfig[k].content_types : {}))
