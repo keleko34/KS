@@ -1,0 +1,10 @@
+{
+  "main":{
+    "modules":{},
+    "websockets":false,
+    "binarystreams":false,
+    "email":false,
+    "filesystem":false,
+    "php":false
+  }
+}

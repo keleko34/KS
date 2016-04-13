@@ -1,0 +1,25 @@
+{
+  "base":"/app",
+  "admin":true,
+  "cached":false,
+  "firewall":true,
+  "logging":false,
+  "directory":true,
+  "fileFilter":true,
+  "rest":
+  {
+      "http":false,
+      "websockets":false
+  },
+  "templates":{
+    "directory":"default",
+    "error":{
+      "404":"default",
+      "500":"default"
+    }
+  },
+  "env":{
+    "dev":"/dev",
+    "qa":"/qa"
+  }
+}

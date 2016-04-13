@@ -1,0 +1,18 @@
+{
+  "mode":"smtp",
+  "modeEnum":["smtp","smtps"],
+  "smtp":
+  [
+      {
+          "email":"<Email>",
+          "password":"<Password>"
+      }
+  ],
+  "smtps":
+  [
+    {
+        "email":"<Email>",
+        "password":"<Password>"
+    }
+  ]
+}

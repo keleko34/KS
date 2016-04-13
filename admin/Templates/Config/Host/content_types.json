@@ -1,0 +1,16 @@
+{
+    "html":{"type":"text/html","encoding":"utf8"}
+  , "js":{"type":"application/javascript","encoding":"binary"}
+  , "css":{"type":"text/css","encoding":"utf8"}
+  , "json":{"type":"application/json","encoding":"binary"}
+  , "xml":{"type":"application/xml","encoding":"binary"}
+  , "txt":{"type":"text/plain","encoding":"utf8"}
+  , "jpg":{"type":"image/jpeg","encoding":"binary"}
+  , "jpeg":{"type":"image/jpeg","encoding":"binary"}
+  , "png":{"type":"image/png","encoding":"binary"}
+  , "svg":{"type":"image/svg+xml","encoding":"binary"}
+  , "tiff":{"type":"image/tiff","encoding":"binary"}
+  , "woff":{"type":"application/x-font-woff","encoding":"binary"}
+  , "eot":{"type":"application/vnd.ms-fontobject","encoding":"binary"}
+  , "ttf":{"type":"application/x-font-ttf","encoding":"binary"}
+}
