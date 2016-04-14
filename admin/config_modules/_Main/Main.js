@@ -22,9 +22,7 @@ module.exports = (function(jsonfile,fs){
 
     function Main()
     {
-      var _read = jsonfile.readFile(_path,function(err,data){
-        if(!err) _config = data;
-      });
+      _config = jsonfile.readFileSync(_path);
     }
 
     Main.path = function(v)
@@ -39,12 +37,7 @@ module.exports = (function(jsonfile,fs){
 
     Main.update = function()
     {
-      jsonfile.writeFile(_path,_config,{spaces: 1},function(err){
-        if(err)
-        {
-          console.log('failed to write',_config,'to main.json');
-        }
-      })
+      jsonfile.writeFileSync(_path,_config,{spaces: 1});
     }
 
     Main.checkFile = function(p)
