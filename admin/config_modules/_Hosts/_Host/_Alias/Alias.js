@@ -31,7 +31,7 @@ module.exports = (function(fs,jsonfile,url){
 
     Alias.update = function()
     {
-      jsonfile.writeFileSync(_config);
+      jsonfile.writeFileSync(_path,_config,{spaces:1});
     }
 
     Alias.addAlias = function(alias,redirect,subs)
@@ -41,6 +41,7 @@ module.exports = (function(fs,jsonfile,url){
         _config[alias+(subs ? '*' : '')] = redirect;
         Alias.update();
       }
+      return Alias;
     }
 
     Alias.removeAlias = function(alias)
@@ -55,12 +56,13 @@ module.exports = (function(fs,jsonfile,url){
         delete _config[alias+'*'];
         Alias.update();
       }
+      return Alias;
     }
 
     /* accepts a path without queries, note queries cant be aliased but can be added from direct alias paths, not subs included paths,
     in future allow queries to be sorted here as well
     Note: some returned paths may need querystring parsed again */
-    Alias.checkAlias(path)
+    Alias.checkAlias = function(path)
     {
       if(_config[path] !== undefined)
       {
@@ -68,7 +70,7 @@ module.exports = (function(fs,jsonfile,url){
       }
       else
       {
-        var AKeys = Object.keys(_config);
+        var AKeys = Object.keys(_config)
           , x = 0;
         for(x;x<AKeys.length;x+=1)
         {
@@ -88,7 +90,7 @@ module.exports = (function(fs,jsonfile,url){
               {
                 path = path.replace('?'+pathQuery,'');
               }
-              return path.replace(subAPath,_config[AKeys[x]]).replace(/\/\//g,'/')+(pathQuery !== null ? '?'+pathQuery : '')+(query !== null ? (pathQuery === null ? '?' : '')+query : '');
+              return path.replace(subAPath,rep).replace(/\/\//g,'/')+(pathQuery !== null ? '?'+pathQuery : '')+(query !== null ? (pathQuery === null ? '?' : '&')+query : '');
             }
           }
         }

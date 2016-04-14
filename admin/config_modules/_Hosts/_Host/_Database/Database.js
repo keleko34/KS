@@ -29,7 +29,7 @@ module.exports = (function(fs,jsonfile){
 
     Database.update = function()
     {
-      jsonfile.writeFileSync(_config);
+      jsonfile.writeFileSync(_path,_config,{spaces:1});
     }
 
     return Database;
