@@ -1,7 +1,9 @@
 module.exports = (function(){
   function CreateProcessCommands()
   {
-    var _module = {commands:function(){}};
+    var _module = {commands:function(){}}
+      , _env = 'master'
+      , _envEnum = ['master','thread','fork']
 
     function KSProcess = function()
     {
@@ -15,6 +17,16 @@ module.exports = (function(){
         return _module;
       }
       _module = (typeof v === 'function' && typeof v.commands === 'function' ? v : _module);
+      return KSProcess;
+    }
+
+    ksprocess.env = function(v)
+    {
+      if(v === undefined)
+      {
+        return _env;
+      }
+      _env = (_envEnum.indexOf(v) > -1 ? v : _env);
       return KSProcess;
     }
 

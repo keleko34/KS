@@ -1,3 +1,4 @@
+//done
 var jsonfile_module = require('jsonfile')
   , rmdir_module = require('rmdir')
   , ncp_module = require('ncp').ncp
@@ -8,8 +9,10 @@ module.exports = (function(jsonfile,fs,rmdir,ncp){
   {
     var _path = ''
       , _config = {}
+      , _onAdd = function(){}
+      , _onRemove = function(){}
 
-    function Vhost(cb)
+    function Vhost()
     {
       _config = jsonfile.readFileSync(_path);
     }
@@ -21,6 +24,26 @@ module.exports = (function(jsonfile,fs,rmdir,ncp){
         return _path;
       }
       _path = (typeof v === 'string' ? v : _path);
+      return Vhost;
+    }
+
+    Vhost.onAdd = function(v)
+    {
+      if(v === undefined)
+      {
+        return _onAdd;
+      }
+      _onAdd = (typeof v === 'function' ? v : _onAdd);
+      return Vhost;
+    }
+
+    Vhost.onRemove = function(v)
+    {
+      if(v === undefined)
+      {
+        return _onRemove;
+      }
+      _onRemove = (typeof v === 'function' ? v : _onRemove);
       return Vhost;
     }
 
@@ -53,6 +76,7 @@ module.exports = (function(jsonfile,fs,rmdir,ncp){
           {
             cb();
           }
+          _onAdd(h);
         }
         , check = function()
         {
@@ -177,6 +201,7 @@ module.exports = (function(jsonfile,fs,rmdir,ncp){
               {
                 cb();
               }
+              _onRemove(h);
             }
           }
 

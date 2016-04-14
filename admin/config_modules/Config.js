@@ -29,7 +29,7 @@ module.exports = (function(CreateMain,CreateVhost,CreateHosts,fs){
         {
           //In the future we will request an input if the user would like to create a default settings here
           Console.Error("ERR: ",ksprocess.base()+_path,' Does not exist or is not the correct settings path, please fix the settings path to match this');
-          switch(process.env())
+          switch(ksprocess.env())
           {
             case 'master':
               ksprocess.killAll();
