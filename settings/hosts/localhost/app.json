@@ -10,16 +10,5 @@
   {
       "http":false,
       "websockets":false
-  },
-  "templates":{
-    "directory":"default",
-    "error":{
-      "404":"default",
-      "500":"default"
-    }
-  },
-  "env":{
-    "dev":"/dev",
-    "qa":"/qa"
   }
 }

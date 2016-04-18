@@ -1,0 +1,7 @@
+{
+    "directory":"default",
+    "error":{
+      "404":"default",
+      "500":"default"
+    }
+}
