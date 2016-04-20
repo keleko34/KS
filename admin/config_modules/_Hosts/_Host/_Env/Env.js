@@ -1,11 +1,14 @@
+//done
 var jsonfile_module = require('jsonfile')
-  , fs_module = require('fs');
+  , fs_module = require('fs')
+  , rmdir_module = require('rmdir');
 
-module.exports = (function(fs,jsonfile){
+module.exports = (function(fs,jsonfile,rmdir){
   function CreateEnv()
   {
     var _path = ''
       , _config = {}
+      , _host = ''
 
     function Env()
     {
@@ -22,6 +25,16 @@ module.exports = (function(fs,jsonfile){
       return Env;
     }
 
+    Env.host = function(v)
+    {
+      if(v === undefined)
+      {
+        return _host;
+      }
+      _host = (typeof v === 'string' ? v : _host);
+      return Env;
+    }
+
     Env.config = function()
     {
       return _config;
@@ -32,7 +45,30 @@ module.exports = (function(fs,jsonfile){
       jsonfile.writeFileSync(_path,_config,{spaces:1});
     }
 
+    Env.addEnv = function(env,path)
+    {
+      if(!path)
+      {
+        path = "/"+env;
+      }
+      _config[env] = path;
+      Env.update();
+      fs.mkdir(ksprocess.base()+'/view/'+_host+"/"+env,function(err){
+        if(err && err.code !== 'EEXIST')
+        {
+          Env.removeEnv(env);
+        }
+      });
+    }
+
+    Env.removeEnv = function(env)
+    {
+      delete _config[env];
+      Env.update();
+      rmdir(ksprocess.base()+'/view/'+_host+"/"+env);
+    }
+
     return Env;
   }
   return CreateEnv;
-}(fs_module,jsonfile_module));
+}(fs_module,jsonfile_module,rmdir_module));

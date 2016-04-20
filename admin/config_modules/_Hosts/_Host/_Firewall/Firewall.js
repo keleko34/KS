@@ -1,3 +1,4 @@
+//done
 var jsonfile_module = require('jsonfile')
   , fs_module = require('fs');
 
@@ -30,6 +31,27 @@ module.exports = (function(fs,jsonfile){
     Firewall.update = function()
     {
       jsonfile.writeFileSync(_path,_config,{spaces:1});
+    }
+
+    Firewall.addRule = function(url,type,ipList,includeSubs)
+    {
+      _config[ulr+(includeSubs ? "*" : "")] = {type:type,ip:ipList};
+      Firewall.update();
+    }
+
+    Firewall.removeRule = function(url)
+    {
+      if(_config[url+"*"] !== undefined)
+      {
+        _config[url+"*"] = null;
+        delete _config[url+"*"];
+      }
+      else
+      {
+        _config[url] = null;
+        delete _config[url];
+      }
+      Firewall.update();
     }
 
     return Firewall;

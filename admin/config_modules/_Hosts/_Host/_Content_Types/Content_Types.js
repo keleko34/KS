@@ -1,3 +1,4 @@
+//done
 var jsonfile_module = require('jsonfile')
   , fs_module = require('fs');
 
@@ -30,6 +31,27 @@ module.exports = (function(fs,jsonfile){
     ContentTypes.update = function()
     {
       jsonfile.writeFileSync(_path,_config,{spaces:1});
+    }
+
+    ContentTypes.addContentType = function(ext,type,encoding)
+    {
+      if(encoding !== null && ['text','binary'].indexOf(encoding) > -1)
+      {
+        config[ext.replace('.','')] = {type:type,encoding:encoding};
+      }
+      ContentTypes.update();
+      return ContentTypes;
+    }
+
+    ContentTypes.removeContentType = function(ext)
+    {
+      if(_config[ext] !== undefined)
+      {
+        _config[ext] = null;
+        delete _config[ext];
+        ContentTypes.update();
+      }
+      return ContentTypes;
     }
 
     return ContentTypes;

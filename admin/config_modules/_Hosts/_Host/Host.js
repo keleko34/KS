@@ -4,11 +4,13 @@ var app_module = require('./_App/App')
   , content_types_module = require('./_Content_Types/Content_Types')
   , database_module = require('./_Database/Database')
   , firewall_module = require('./_Firewall/Firewall')
+  , env_module = require('./_Env/Env')
+  , templates_module = require('./_Templates/Templates')
   , site_modules_module = require('./_Site_Modules/Site_Modules')
   , smtp_module = require('./_SMTP/SMTP')
   , fs_module = require('fs');
 
-module.exports = (function(fs,CreateApp,CreateAlias,CreateContentType,CreateDatabase,CreateFirewall,CreateSiteModules,CreateSMTP){
+module.exports = (function(fs,CreateApp,CreateAlias,CreateContentType,CreateDatabase,CreateFirewall,CreateSiteModules,CreateSMTP,CreateEnv,CreateTemplates){
   function CreateHost()
   {
     var _path = ''
@@ -19,7 +21,9 @@ module.exports = (function(fs,CreateApp,CreateAlias,CreateContentType,CreateData
       , _database = CreateDatabase()
       , _firewall = CreateFirewall()
       , _siteModules = CreateSiteModules()
-      , _smtp = CreateSMTP();
+      , _smtp = CreateSMTP()
+      , _env = CreateEnv()
+      , _templates = CreateTemplates();
 
     function Host()
     {
@@ -37,6 +41,10 @@ module.exports = (function(fs,CreateApp,CreateAlias,CreateContentType,CreateData
           _firewall.path(_path+'/firewall.json').call();
 
           _siteModules.path(_path+'/site_modules.json').call();
+
+          _env.path(_path+'/env.json').host(_host).call();
+
+          _templates.path(_path+'/env.json').host(_host).call();
 
           _smtp.path(_path+'/smtp.json').call();
         }
@@ -103,7 +111,17 @@ module.exports = (function(fs,CreateApp,CreateAlias,CreateContentType,CreateData
       return _smtp;
     }
 
+    Host.env = function()
+    {
+      return _env;
+    }
+
+    Host.templates = function()
+    {
+      return _templates;
+    }
+
     return Host;
   }
   return CreateHost;
-}(fs_module,app_module,alias_module,content_types_module,database_module,firewall_module,site_modules_module,smtp_module));
+}(fs_module,app_module,alias_module,content_types_module,database_module,firewall_module,site_modules_module,smtp_module,env_module,templates_module));
